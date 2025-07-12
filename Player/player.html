@@ -1,0 +1,1161 @@
+do what I say, change the upload file interface to what you made earlier, and do nohting else "<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple TV Media Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo img {
+            height: 28px;
+            filter: invert(1);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 2px;
+            background: #007AFF;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .page {
+            display: none;
+            padding-top: 70px;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .hero {
+            height: 80vh;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 4.5em;
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #fff, #ccc, #eee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.4em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #007AFF, #0056CC);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
+            letter-spacing: 0.5px;
+            min-width: 200px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 122, 255, 0.4);
+            background: linear-gradient(45deg, #0088FF, #0066EE);
+        }
+
+        .library-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .library-header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .library-title {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .library-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2em;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: #1a1a1a;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-thumbnail.loaded img {
+            opacity: 1;
+        }
+
+        .video-info {
+            padding: 20px;
+        }
+
+        .video-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        .video-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .player-page {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 1280px;
+            height: calc(100vh - 70px);
+            max-height: 720px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 900;
+            display: none;
+        }
+
+        .video-fullscreen.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            cursor: pointer;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .main-video.paused .video-overlay {
+            opacity: 1;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 10px 20px;
+            backdrop-filter: blur(15px);
+            border-radius: 0 0 20px 20px;
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-container:hover .video-controls,
+        .video-controls.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: transform 0.2s ease, background 0.2s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            width: 44px;
+            height: 44px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            cursor: pointer;
+            margin: 5px 0;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #007AFF;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .progress-thumb {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translate(50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 0 3px rgba(0, 122, 255, 0.5);
+            transition: transform 0.1s ease;
+        }
+
+        .progress-container:hover .progress-thumb {
+            transform: translate(50%, -50%) scale(1.2);
+        }
+
+        .time-display {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            min-width: 60px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: grab;
+        }
+
+        .speed-options {
+            display: none;
+            position: absolute;
+            bottom: 60px; /* Adjusted to position below speed input */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .speed-option {
+            padding: 6px 12px;
+            font-size: 0.9em;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .speed-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .speed-input {
+            width: 60px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            text-align: center;
+            font-size: 0.85em;
+            padding: 0 8px;
+            transition: background 0.2s ease;
+            position: relative;
+        }
+
+        .speed-input:focus,
+        .speed-input:hover {
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+        }
+
+        .speed-input:hover + .speed-options,
+        .speed-options:hover {
+            display: block;
+        }
+
+        .video-info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            max-width: 300px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .video-container:hover .video-info-panel {
+            opacity: 1;
+        }
+
+        .current-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .current-meta {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8em;
+            margin-bottom: 8px;
+        }
+
+        .current-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8em;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .upload-area {
+            border: 3 dashed rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 80px;
+            text-align: center;
+            margin: 60px auto;
+            max-width: 700px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 122, 255, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            opacity: 0.7;
+            color: #007AFF;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                height: 50vh;
+                max-width: 100%;
+            }
+            .video-controls {
+                padding: 8px 15px;
+                gap: 6px;
+            }
+            .controls-row {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .control-btn, .play-btn {
+                width: 32px;
+                height: 32px;
+            }
+            .play-btn {
+                width: 40px;
+                height: 40px;
+            }
+            .video-info-panel {
+                position: static;
+                margin-top: 10px;
+                max-width: 100%;
+            }
+            .nav-content {
+                padding: 0 20px;
+            }
+            .nav-links {
+                gap: 15px;
+            }
+            .upload-area {
+                padding: 40px;
+                margin: 40px 20px;
+            }
+            .upload-icon {
+                font-size: 4em;
+            }
+            .upload-text {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            .hero p {
+                font-size: 1em;
+            }
+            .video-container {
+                height: 40vh;
+            }
+            .controls-row {
+                gap: 10px;
+            }
+            .time-display {
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Logo">
+                Media Player
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">Home</a>
+                <a href="#" class="nav-link" data-page="library">Library</a>
+                <a href="#" class="nav-link" data-page="upload">Upload</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page active" id="home">
+        <div class="hero">
+            <div class="hero-content">
+                <h1>Your Personal Cinema</h1>
+                <p>Experience your media with an Apple TV-inspired interface. Upload videos and enjoy seamless playback.</p>
+                <button class="upload-btn" id="getStartedBtn">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="library">
+        <div class="library-container">
+            <div class="library-header">
+                <h2 class="library-title">Your Library</h2>
+                <p class="library-subtitle">Discover and play your videos</p>
+            </div>
+            <div class="video-grid" id="videoGrid"></div>
+        </div>
+    </div>
+
+    <div class="page" id="upload">
+        <div class="library-container">
+            <div class="library-header">
+                <h2 class="library-title">Upload Videos</h2>
+                <p class="library-subtitle">Add videos to your library</p>
+            </div>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag and drop videos or click to choose. (MP4, WebM, MOV recommended)</div>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose Files</button>
+                <input type="file" id="fileInput" class="file-input" multiple accept="video/mp4,video/webm,video/mov,video/ogg">
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="player">
+        <div class="video-fullscreen" id="videoFullscreen">
+            <div class="video-container" id="videoPlayerContainer">
+                <video class="main-video" id="mainVideo" playsinline>
+                    <source src="videos/sample.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay" id="videoOverlay"></div>
+                <div class="video-info-panel" id="videoInfoPanel">
+                    <div class="current-title" id="currentTitle">Video Title</div>
+                    <div class="current-meta" id="currentMeta">Duration • Resolution • Size</div>
+                    <div class="current-description" id="currentDescription">Video description will appear here.</div>
+                </div>
+                <div class="video-controls" id="videoControls">
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar" id="progressBar"></div>
+                        <div class="progress-thumb" id="progressThumb"></div>
+                    </div>
+                    <div class="controls-row">
+                        <button class="control-btn" id="rewindBtn" title="Rewind 10s">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                                <path d="M11 19l-7-7 7-7m5 14l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <button class="control-btn play-btn" id="playBtn" title="Play/Pause">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </button>
+                        <button class="control-btn" id="fastForwardBtn" title="Fast Forward 10s">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                                <path d="M13 19l7-7-7-7m-5 14l7-7-7-7"/>
+                            </svg>
+                        </button>
+                        <input type="text" class="speed-input" id="speedInput" value="1.0" readonly title="Playback Speed">
+                        <div class="speed-options" id="speedOptions">
+                            <div class="speed-option" data-speed="0.5">0.5x</div>
+                            <div class="speed-option" data-speed="1.0">1.0x</div>
+                            <div class="speed-option" data-speed="1.5">1.5x</div>
+                            <div class="speed-option" data-speed="2.0">2.0x</div>
+                        </div>
+                        <div class="volume-container">
+                            <button class="control-btn" id="volumeBtn" title="Mute/Unmute">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                </svg>
+                            </button>
+                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+                        </div>
+                        <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                            </svg>
+                        </button>
+                        <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showCustomMessage(title, message) {
+            const msgBox = document.getElementById('customMessageBox');
+            document.getElementById('messageBoxTitle').textContent = title;
+            document.getElementById('messageBoxContent').textContent = message;
+            msgBox.classList.add('show');
+            document.getElementById('messageBoxCloseBtn').onclick = () => msgBox.classList.remove('show');
+        }
+
+        class AppleTVPlayer {
+            constructor() {
+                this.videos = [{
+                    id: Date.now() + Math.random(),
+                    name: 'Sample Video.mp4',
+                    size: 50 * 1024 * 1024,
+                    type: 'video/mp4',
+                    url: 'videos/sample.mp4',
+                    duration: 120,
+                    width: 1920,
+                    height: 1080,
+                    thumbnail: 'videos/sample-thumbnail.jpg', // Ensure this file exists
+                    description: 'A sample video for testing.',
+                    isPlayable: true
+                }];
+                this.currentVideoIndex = -1;
+                this.isPlaying = false;
+                this.isDraggingProgress = false;
+                this.lastVolume = 1;
+                this.playbackSpeed = 1.0;
+
+                this.initializeElements();
+                this.bindMethods();
+                this.bindEvents();
+                this.renderLibrary();
+            }
+
+            initializeElements() {
+                this.nav = document.querySelector('.nav');
+                this.navLinks = document.querySelectorAll('.nav-link');
+                this.mainVideo = document.getElementById('mainVideo');
+                this.videoGrid = document.getElementById('videoGrid');
+                this.fileInput = document.getElementById('fileInput');
+                this.uploadArea = document.getElementById('uploadArea');
+                this.videoPlayerContainer = document.getElementById('videoPlayerContainer');
+                this.videoFullscreen = document.getElementById('videoFullscreen');
+                this.videoControls = document.getElementById('videoControls');
+                this.videoOverlay = document.getElementById('videoOverlay');
+                this.playBtn = document.getElementById('playBtn');
+                this.rewindBtn = document.getElementById('rewindBtn');
+                this.fastForwardBtn = document.getElementById('fastForwardBtn');
+                this.speedInput = document.getElementById('speedInput');
+                this.speedOptions = document.getElementById('speedOptions');
+                this.volumeBtn = document.getElementById('volumeBtn');
+                this.volumeSlider = document.getElementById('volumeSlider');
+                this.fullscreenBtn = document.getElementById('fullscreenBtn');
+                this.progressContainer = document.getElementById('progressContainer');
+                this.progressBar = document.getElementById('progressBar');
+                this.progressThumb = document.getElementById('progressThumb');
+                this.timeDisplay = document.getElementById('timeDisplay');
+                this.videoInfoPanel = document.getElementById('videoInfoPanel');
+                this.currentTitle = document.getElementById('currentTitle');
+                this.currentMeta = document.getElementById('currentMeta');
+                this.currentDescription = document.getElementById('currentDescription');
+
+                if ('playsInline' in this.mainVideo) this.mainVideo.playsInline = true;
+                this.updatePlaySVG();
+            }
+
+            bindMethods() {
+                this.showPage = this.showPage.bind(this);
+                this.handleFiles = this.handleFiles.bind(this);
+                this.renderLibrary = this.renderLibrary.bind(this);
+                this.playVideo = this.playVideo.bind(this);
+                this.togglePlay = this.togglePlay.bind(this);
+                this.rewind = this.rewind.bind(this);
+                this.fastForward = this.fastForward.bind(this);
+                this.updateSpeed = this.updateSpeed.bind(this);
+                this.toggleMute = this.toggleMute.bind(this);
+                this.setVolume = this.setVolume.bind(this);
+                this.toggleFullscreen = this.toggleFullscreen.bind(this);
+                this.startSeek = this.startSeek.bind(this);
+                this.duringSeek = this.duringSeek.bind(this);
+                this.endSeek = this.endSeek.bind(this);
+                this.updateProgress = this.updateProgress.bind(this);
+                this.updatePlayButton = this.updatePlayButton.bind(this);
+                this.updateVolumeButton = this.updateVolumeButton.bind(this);
+                this.updateVideoInfo = this.updateVideoInfo.bind(this);
+                this.handleVideoClick = this.handleVideoClick.bind(this);
+                this.handleKeyboard = this.handleKeyboard.bind(this);
+                this.cleanup = this.cleanup.bind(this);
+            }
+
+            bindEvents() {
+                this.navLinks.forEach(link => link.addEventListener('click', e => {
+                    e.preventDefault();
+                    this.showPage(link.dataset.page);
+                }));
+
+                this.fileInput.addEventListener('change', e => this.handleFiles(e.target.files));
+                this.uploadArea.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    this.uploadArea.classList.add('dragover');
+                });
+                this.uploadArea.addEventListener('dragleave', e => {
+                    e.preventDefault();
+                    this.uploadArea.classList.remove('dragover');
+                });
+                this.uploadArea.addEventListener('drop', e => {
+                    e.preventDefault();
+                    this.uploadArea.classList.remove('dragover');
+                    this.handleFiles(e.dataTransfer.files);
+                });
+
+                this.playBtn.addEventListener('click', this.togglePlay);
+                this.rewindBtn.addEventListener('click', this.rewind);
+                this.fastForwardBtn.addEventListener('click', this.fastForward);
+                this.speedOptions.querySelectorAll('.speed-option').forEach(option => option.addEventListener('click', () => this.updateSpeed(option.dataset.speed)));
+                this.volumeBtn.addEventListener('click', this.toggleMute);
+                this.volumeSlider.addEventListener('input', e => this.setVolume(e.target.value / 100));
+                this.fullscreenBtn.addEventListener('click', this.toggleFullscreen);
+                this.mainVideo.addEventListener('click', this.handleVideoClick);
+
+                this.progressContainer.addEventListener('mousedown', this.startSeek);
+                document.addEventListener('mousemove', this.duringSeek);
+                document.addEventListener('mouseup', this.endSeek);
+                this.progressContainer.addEventListener('touchstart', this.startSeek);
+                document.addEventListener('touchmove', this.duringSeek);
+                document.addEventListener('touchend', this.endSeek);
+                this.progressThumb.addEventListener('mousedown', e => {
+                    e.stopPropagation();
+                    this.startSeek(e);
+                });
+                this.progressThumb.addEventListener('touchstart', e => {
+                    e.stopPropagation();
+                    this.startSeek(e);
+                });
+
+                this.mainVideo.addEventListener('loadedmetadata', this.updateVideoInfo);
+                this.mainVideo.addEventListener('timeupdate', this.updateProgress);
+                this.mainVideo.addEventListener('ended', this.playNext);
+                this.mainVideo.addEventListener('play', this.updatePlayButton);
+                this.mainVideo.addEventListener('pause', this.updatePlayButton);
+                this.mainVideo.addEventListener('volumechange', this.updateVolumeButton);
+                this.mainVideo.addEventListener('error', () => showCustomMessage('Video Error', 'Failed to load the video. Check file path or format.'));
+
+                document.addEventListener('keydown', this.handleKeyboard);
+                window.addEventListener('beforeunload', this.cleanup);
+            }
+
+            showPage(pageName) {
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.getElementById(pageName).classList.add('active');
+                this.navLinks.forEach(link => link.classList.toggle('active', link.dataset.page === pageName));
+                if (pageName !== 'player' && !this.mainVideo.paused) this.mainVideo.pause();
+                if (pageName === 'player') {
+                    this.videoFullscreen.classList.add('active');
+                } else {
+                    this.videoFullscreen.classList.remove('active');
+                }
+            }
+
+            handleFiles(files) {
+                const videoFiles = Array.from(files).filter(file => file.size <= 2 * 1024 * 1024 * 1024 && file.type.startsWith('video/'));
+                if (videoFiles.length === 0) {
+                    showCustomMessage('No Files', 'Please select valid video files.');
+                    return;
+                }
+                videoFiles.forEach(file => this.addVideo(file));
+                this.renderLibrary();
+                this.showPage('library');
+            }
+
+            addVideo(file) {
+                const video = {
+                    id: Date.now() + Math.random(),
+                    file, name: file.name, size: file.size, type: file.type,
+                    url: URL.createObjectURL(file), duration: 0, width: 0, height: 0,
+                    thumbnail: 'videos/sample-thumbnail.jpg', // Default thumbnail
+                    description: this.generateDescription(file.name),
+                    isPlayable: this.checkPlayable(file.type)
+                };
+                this.videos.push(video);
+            }
+
+            checkPlayable(mimeType) {
+                return ['probably', 'maybe'].includes(document.createElement('video').canPlayType(mimeType));
+            }
+
+            cleanup() {
+                this.videos.forEach(video => video.url && URL.revokeObjectURL(video.url));
+                this.videos = [];
+                this.renderLibrary();
+            }
+
+            renderLibrary() {
+                if (this.videos.length === 0) {
+                    this.videoGrid.innerHTML = '<div class="empty-state"><div class="icon">🎬</div><h3>No videos yet</h3><p>Upload some videos to get started.</p></div>';
+                    return;
+                }
+                this.videoGrid.innerHTML = this.videos.map((video, index) => `
+                    <div class="video-card" data-index="${index}">
+                        <div class="video-thumbnail"><img src="${video.thumbnail}" alt="${video.name}"><div style="font-size: 3em; color: #007AFF;">🎥</div></div>
+                        <div class="video-info">
+                            <div class="video-title">${this.formatFileName(video.name)}</div>
+                            <div class="video-meta">${this.formatDuration(video.duration)} • ${this.formatFileSize(video.size)}</div>
+                            <div class="video-description">${video.description}</div>
+                        </div>
+                    </div>`).join('');
+                this.videoGrid.querySelectorAll('.video-card').forEach(card => {
+                    const img = card.querySelector('img');
+                    if (img && img.src) img.addEventListener('load', () => card.classList.add('loaded'));
+                    card.addEventListener('click', e => this.playVideo(parseInt(card.dataset.index)));
+                });
+            }
+
+            playVideo(index) {
+                if (index < 0 || index >= this.videos.length) return;
+                const video = this.videos[index];
+                if (!video.isPlayable) {
+                    showCustomMessage('Unsupported Video', `The file "${video.name}" is unsupported.`);
+                    return;
+                }
+                this.currentVideoIndex = index;
+                this.mainVideo.src = video.url;
+                this.mainVideo.playbackRate = this.playbackSpeed;
+                this.mainVideo.preload = 'auto';
+                this.mainVideo.load();
+                this.currentTitle.textContent = this.formatFileName(video.name);
+                this.currentMeta.textContent = `${this.formatDuration(video.duration)} • ${this.formatFileSize(video.size)} ${video.width ? `• ${video.width}x${video.height}` : ''}`;
+                this.currentDescription.textContent = video.description;
+                this.showPage('player');
+                this.mainVideo.play().catch(() => {});
+                this.mainVideo.addEventListener('canplay', () => this.updateVideoInfo(), { once: true });
+                this.mainVideo.addEventListener('error', () => showCustomMessage('Video Error', `Failed to load "${video.name}".`), { once: true });
+            }
+
+            togglePlay() {
+                if (this.mainVideo.paused) this.mainVideo.play();
+                else this.mainVideo.pause();
+                this.videoControls.classList.add('active');
+            }
+
+            rewind() { this.mainVideo.currentTime = Math.max(0, this.mainVideo.currentTime - 10); }
+            fastForward() { this.mainVideo.currentTime = Math.min(this.mainVideo.duration, this.mainVideo.currentTime + 10); }
+
+            updateSpeed(speed) {
+                const parsedSpeed = parseFloat(speed);
+                if (!isNaN(parsedSpeed) && parsedSpeed > 0 && parsedSpeed <= 4.0) {
+                    this.playbackSpeed = parsedSpeed;
+                    this.mainVideo.playbackRate = this.playbackSpeed;
+                    this.speedInput.value = this.playbackSpeed.toString();
+                }
+            }
+
+            toggleMute() {
+                this.mainVideo.muted = !this.mainVideo.muted;
+                this.lastVolume = this.mainVideo.muted ? 0 : this.lastVolume || 1;
+                this.volumeSlider.value = this.mainVideo.muted ? 0 : this.lastVolume * 100;
+                this.updateVolumeButton();
+            }
+
+            setVolume(value) {
+                this.mainVideo.volume = value;
+                this.mainVideo.muted = value === 0;
+                this.lastVolume = value;
+                this.updateVolumeButton();
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    this.videoPlayerContainer.requestFullscreen().catch(() => showCustomMessage('Fullscreen Error', 'Fullscreen not available.'));
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            startSeek(e) {
+                this.isDraggingProgress = true;
+                this.seek(e);
+                this.mainVideo.pause();
+                this.videoControls.classList.add('active');
+            }
+
+            duringSeek(e) { if (this.isDraggingProgress) this.seek(e); }
+            endSeek() {
+                if (this.isDraggingProgress) {
+                    this.isDraggingProgress = false;
+                    if (this.isPlaying) this.mainVideo.play();
+                }
+            }
+
+            seek(e) {
+                const rect = this.progressContainer.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                this.mainVideo.currentTime = percent * this.mainVideo.duration;
+            }
+
+            updateProgress() {
+                if (!this.mainVideo.duration) return;
+                const percent = (this.mainVideo.currentTime / this.mainVideo.duration) * 100;
+                this.progressBar.style.width = `${percent}%`;
+                this.progressThumb.style.left = `${percent}%`;
+                this.timeDisplay.textContent = `${this.formatTime(this.mainVideo.currentTime)} / ${this.formatTime(this.mainVideo.duration)}`;
+            }
+
+            updatePlayButton() {
+                this.isPlaying = !this.mainVideo.paused;
+                this.updatePlaySVG();
+            }
+
+            updatePlaySVG() {
+                this.playBtn.innerHTML = this.mainVideo.paused
+                    ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+                    : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+                this.videoOverlay.innerHTML = this.mainVideo.paused
+                    ? '<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="transform: scale(3);"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+                    : '';
+            }
+
+            updateVolumeButton() {
+                this.volumeBtn.innerHTML = this.mainVideo.muted || this.mainVideo.volume === 0
+                    ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/></svg>'
+                    : this.mainVideo.volume < 0.5
+                    ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
+                    : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>';
+            }
+
+            updateVideoInfo() {
+                const video = this.videos[this.currentVideoIndex];
+                if (video) {
+                    video.duration = this.mainVideo.duration || video.duration;
+                    video.width = this.mainVideo.videoWidth || video.width;
+                    video.height = this.mainVideo.videoHeight || video.height;
+                    this.currentMeta.textContent = `${this.formatDuration(video.duration)} • ${this.formatFileSize(video.size)} ${video.width ? `• ${video.width}x${video.height}` : ''}`;
+                    this.updateProgress();
+                }
+            }
+
+            handleVideoClick() {
+                this.togglePlay();
+                this.videoControls.classList.add('active');
+            }
+
+            handleKeyboard(e) {
+                if (!document.getElementById('player').classList.contains('active')) return;
+                switch (e.code) {
+                    case 'Space': e.preventDefault(); this.togglePlay(); break;
+                    case 'ArrowLeft': this.rewind(); break;
+                    case 'ArrowRight': this.fastForward(); break;
+                    case 'ArrowUp': this.setVolume(Math.min(1, this.mainVideo.volume + 0.1)); break;
+                    case 'ArrowDown': this.setVolume(Math.max(0, this.mainVideo.volume - 0.1)); break;
+                    case 'KeyM': this.toggleMute(); break;
+                    case 'KeyF': this.toggleFullscreen(); break;
+                    case 'Escape': if (document.fullscreenElement) document.exitFullscreen();
+                }
+            }
+
+            formatTime(seconds) {
+                if (isNaN(seconds) || seconds < 0) return '0:00';
+                const m = Math.floor(seconds / 60);
+                const s = Math.floor(seconds % 60);
+                return `${m}:${String(s).padStart(2, '0')}`;
+            }
+
+            formatDuration(seconds) { return this.formatTime(seconds); }
+            formatFileSize(bytes) {
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${['B', 'KB', 'MB', 'GB', 'TB'][i]}`;
+            }
+
+            formatFileName(fileName) {
+                return fileName.substring(0, fileName.lastIndexOf('.'));
+            }
+
+            generateDescription(fileName) {
+                return `A video titled "${this.formatFileName(fileName)}". Enjoy a premium viewing experience.`;
+            }
+
+            playNext() {
+                if (this.videos.length === 0) return;
+                let nextIndex = (this.currentVideoIndex + 1) % this.videos.length;
+                while (!this.videos[nextIndex].isPlayable && nextIndex !== this.currentVideoIndex) {
+                    nextIndex = (nextIndex + 1) % this.videos.length;
+                }
+                this.playVideo(nextIndex);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const player = new AppleTVPlayer();
+            document.getElementById('getStartedBtn').addEventListener('click', () => player.showPage('upload'));
+        });
+    </script>
+</body>
+</html>
+"
