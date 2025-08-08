@@ -1275,7 +1275,7 @@
                     option.classList.toggle('active', option.dataset.quality == this.videoQuality);
                 });
                 this.qualityPickerContainer.classList.remove('open');
-                // In a real implementation, this would trigger adaptive streaming
+                // In a real implementation, this would trigger adaptive streaming ye boy
             }
 
             toggleMute() {
@@ -1546,12 +1546,11 @@
                 this.infoPanelExpanded = !this.infoPanelExpanded;
                 this.infoPanel.classList.toggle('expanded', this.infoPanelExpanded);
 
-                // Update the toggle icon
                 this.titleToggle.innerHTML = this.infoPanelExpanded ?
                     '<svg viewBox="0 0 24 24"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6z"/></svg>' :
                     '<svg viewBox="0 0 24 24"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6z"/></svg>';
 
-                // Clear any existing timeout and set a new one
+                // Clear any existing timeout and set a new one, cuz it will be weird if not lol
                 clearTimeout(this.infoPanelTimeout);
                 this.infoPanelTimeout = setTimeout(() => this.hideInfoPanel(), 2750);
             }
