@@ -939,9 +939,9 @@
         Copilot Media
       </div>
       <div class="nav-links">
-        <a href="#" class="nav-link active" data-page="home">Home</a>
-        <a href="#" class="nav-link" data-page="library">Library</a>
-        <a href="#" class="nav-link" data-page="upload">Upload</a>
+        <a href="#home" class="nav-link active" data-page="home">Home</a>
+        <a href="#library" class="nav-link" data-page="library">Library</a>
+        <a href="#upload" class="nav-link" data-page="upload">Upload</a>
       </div>
     </div>
   </nav>
@@ -1169,11 +1169,15 @@
         this.isPlaying = false;
         this.isDragging = false;
         this.currentMedia = null;
+        this.currentPageId = 'home';
 
         this.initElements();
         this.bindEvents();
         this.initAnimations();
         this.renderLibrary();
+        // Initialize route from hash and listen for changes
+        this.applyInitialRoute();
+        window.addEventListener('hashchange', () => this.applyInitialRoute());
       }
 
       initElements() {
@@ -1233,14 +1237,18 @@
         // Navigation
         this.navLinks.forEach(link => {
           link.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showPage(link.dataset.page);
+            // allow hash to update the URL for persistence
+            const target = link.dataset.page;
+            if (!target) return;
+            // if browser already at the hash, prevent default to avoid scroll jump
+            if (location.hash === `#${target}`) e.preventDefault();
+            this.showPage(target);
           });
         });
 
         // Hero buttons
-        this.heroUpload.addEventListener('click', () => this.showPage('upload'));
-        this.heroLibrary.addEventListener('click', () => this.showPage('library'));
+        this.heroUpload.addEventListener('click', () => { location.hash = '#upload'; this.showPage('upload'); });
+        this.heroLibrary.addEventListener('click', () => { location.hash = '#library'; this.showPage('library'); });
 
         // Upload events
         this.browseFiles.addEventListener('click', () => this.fileInput.click());
@@ -1363,7 +1371,20 @@
         });
       }
 
+      applyInitialRoute() {
+        const hash = (location.hash || '#home').replace('#', '');
+        const valid = ['home', 'library', 'upload'];
+        const target = valid.includes(hash) ? hash : 'home';
+        this.showPage(target);
+      }
+
       showPage(pageId) {
+        if (this.currentPageId === pageId) {
+          // Ensure correct state if called redundantly
+          this.pages.forEach(p => p.classList.toggle('active', p.id === pageId));
+          this.navLinks.forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
+          return;
+        }
         // Update navigation
         this.navLinks.forEach(link => {
           link.classList.toggle('active', link.dataset.page === pageId);
@@ -1374,6 +1395,7 @@
         const newPage = document.getElementById(pageId);
         if (!newPage) return;
         newPage.classList.add('active');
+        this.currentPageId = pageId;
 
         // Optional animation if GSAP is available
         if (window.gsap) {
