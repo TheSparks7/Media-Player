@@ -207,11 +207,13 @@
     .liquidGlass-wrapper { position: relative; display: block; overflow: hidden; border-radius: 16px; }
     .liquidGlass-effect { position: absolute; z-index: 0; inset: 0; backdrop-filter: blur(3px); filter: var(--glass-distortion); overflow: hidden; isolation: isolate; pointer-events: none; }
     .liquidGlass-tint { z-index: 1; position: absolute; inset: 0; background: var(--liquid-glass-advanced); pointer-events: none; }
-    .liquidGlass-shine { position: absolute; inset: -100% -100%; z-index: 2; background: radial-gradient(120px 60px at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.35), rgba(255,255,255,0) 60%); mix-blend-mode: screen; transition: opacity .2s; opacity: .35; pointer-events: none; }
+    .liquidGlass-shine { position: absolute; inset: -100% -100%; z-index: 2; background: radial-gradient(140px 70px at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.5), rgba(255,255,255,0) 60%); mix-blend-mode: screen; transition: opacity .2s; opacity: .5; pointer-events: none; }
 
     /* Utility */
     .hidden { display: none; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .title-glass { background: linear-gradient(135deg, #ffffff, #c6d3ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+    video::cue { color: #fff; background: rgba(0,0,0,0.55); font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
@@ -332,7 +334,7 @@
     <div class="library-container">
       <div class="library-header">
         <div>
-          <h2 class="library-title">Your Library</h2>
+          <h2 class="library-title title-glass">Your Library</h2>
           <p class="library-subtitle">Organize, preview, and play your media collection</p>
         </div>
         <div class="filters">
@@ -353,7 +355,7 @@
     <div class="upload-section">
       <div class="library-header">
         <div>
-          <h2 class="library-title">Upload Media</h2>
+          <h2 class="library-title title-glass">Upload Media</h2>
           <p class="library-subtitle">Drag & drop files, paste URLs, and manage a queue</p>
         </div>
       </div>
@@ -438,8 +440,12 @@
       <img class="media-viewer hidden" id="imageViewer" alt="">
       <iframe class="media-viewer hidden" id="documentViewer"></iframe>
       <iframe class="media-viewer hidden" id="embedViewer" allowfullscreen></iframe>
+      <div class="media-viewer hidden" id="youtubeContainer"></div>
 
       <div class="player-controls hidden" id="playerControls">
+        <div class="liquidGlass-effect"></div>
+        <div class="liquidGlass-tint"></div>
+        <div class="liquidGlass-shine"></div>
         <div class="progress-container" id="playerProgressContainer">
           <div class="progress-bar" id="playerProgressBar">
             <div class="progress-thumb"></div>
@@ -500,6 +506,19 @@
               </button>
               <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
             </div>
+            <button class="control-btn" id="captionsBtn" title="Add Subtitles">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                <line x1="7" y1="12" x2="17" y2="12"/>
+                <line x1="7" y1="16" x2="13" y2="16"/>
+              </svg>
+            </button>
+            <button class="control-btn" id="controlsModeBtn" title="Toggle Native/Custom Controls">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </button>
             <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
             <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -511,6 +530,7 @@
       </div>
     </div>
   </div>
+  <input type="file" id="subtitleInput" accept=".vtt,.srt" style="display:none;">
 
   <div class="toast-container" id="toastContainer"></div>
 
@@ -526,6 +546,9 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script>
+    // Streaming libs and YT API will be loaded dynamically as needed
+  </script>
+  <script>
     class CopilotMedia {
       constructor() {
         this.mediaLibrary = [];
@@ -535,6 +558,11 @@
         this.isDragging = false;
         this.currentMedia = null;
         this.queue = [];
+        this.youtubePlayer = null;
+        this.ytInterval = null;
+        this.useCustomControls = false;
+        this.hls = null;
+        this.dash = null;
 
         this.initElements();
         this.bindEvents();
@@ -568,6 +596,7 @@
         this.imageViewer = document.getElementById('imageViewer');
         this.documentViewer = document.getElementById('documentViewer');
         this.embedViewer = document.getElementById('embedViewer');
+        this.youtubeContainer = document.getElementById('youtubeContainer');
         this.playerControls = document.getElementById('playerControls');
         this.playerProgressContainer = document.getElementById('playerProgressContainer');
         this.playerProgressBar = document.getElementById('playerProgressBar');
@@ -585,6 +614,9 @@
         this.speedSelect = document.getElementById('speedSelect');
         this.loopToggle = document.getElementById('loopToggle');
         this.pipBtn = document.getElementById('pipBtn');
+        this.captionsBtn = document.getElementById('captionsBtn');
+        this.controlsModeBtn = document.getElementById('controlsModeBtn');
+        this.subtitleInput = document.getElementById('subtitleInput');
 
         // Info
         this.infoTitle = document.getElementById('infoTitle');
@@ -646,10 +678,13 @@
         this.speedSelect.addEventListener('change', () => this.applySpeed());
         this.loopToggle.addEventListener('click', () => this.toggleLoop());
         this.pipBtn.addEventListener('click', () => this.togglePiP());
+        this.captionsBtn.addEventListener('click', () => this.subtitleInput.click());
+        this.subtitleInput.addEventListener('change', (e) => { const f = e.target.files?.[0]; if (f) this.addSubtitleFile(f); e.target.value=''; });
+        this.controlsModeBtn.addEventListener('click', () => this.toggleControlsMode());
 
         // Player dblclick: fullscreen; click on video toggles play
-        this.playerOverlay.addEventListener('dblclick', (e) => { if (!this.playerControls.classList.contains('hidden')) this.toggleFullscreen(); });
-        this.playerOverlay.addEventListener('click', (e) => { const isControl = e.target.closest?.('.player-controls'); if (!isControl && (this.videoPlayer || this.audioPlayer)) this.togglePlayPause(); });
+        this.playerOverlay.addEventListener('dblclick', (e) => { this.toggleFullscreen(); });
+        this.playerOverlay.addEventListener('click', (e) => { const isControl = e.target.closest?.('.player-controls'); if (!isControl) this.togglePlayPause(); });
 
         // Keyboard
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
@@ -695,15 +730,13 @@
       }
 
       animateLibraryPage() { gsap.from('.library-header', { y: 20, opacity: 0, duration: 0.4, ease: 'power2.out' }); gsap.from('.filter-chip', { scale: 0.9, opacity: 0, duration: 0.3, ease: 'back.out', stagger: 0.05, delay: 0.1 }); gsap.from('.media-card', { y: 30, opacity: 0, duration: 0.4, ease: 'power2.out', stagger: 0.05, delay: 0.1 }); }
-      animateUploadPage() { const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; gsap.from('.upload-area', { scale: 0.96, opacity: 0, duration: 0.5, ease: 'power2.out' }); if (!prefersReduced) gsap.to('.upload-area', { y: -4, duration: 2, ease: 'power2.inOut', yoyo: true, repeat: -1 }); }
+      animateUploadPage() { const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; gsap.from('.upload-area', { scale: 0.96, opacity: 0, duration: 0.5, ease: 'power2.out' }); if (!prefersReduced) gsap.to('.upload-area', { y: -6, duration: 2, ease: 'power2.inOut', yoyo: true, repeat: -1 }); }
 
       // Queue + Upload
       enqueueFiles(files) {
         if (!files || !files.length) return;
-        const maxSize = 100 * 1024 * 1024;
-        const allowedTypes = ['video/', 'audio/', 'image/', 'application/pdf', 'text/', 'application/msword', 'application/vnd.openxmlformats-officedocument'];
-        const items = Array.from(files).map(file => { const tooLarge = file.size > maxSize; const isValidType = allowedTypes.some(t => file.type.startsWith(t)) || this.isValidFileExtension(file.name); return { id: this.generateId(), file, name: file.name, size: file.size, type: file.type, valid: !tooLarge && isValidType, progress: 0 }; });
-        items.forEach(item => { if (!item.valid) this.showToast(`Skipping unsupported or large file: ${item.name}`, 'error'); else this.queue.push(item); });
+        const items = Array.from(files).map(file => ({ id: this.generateId(), file, name: file.name, size: file.size, type: file.type, valid: true, progress: 0 }));
+        items.forEach(item => this.queue.push(item));
         this.renderQueue();
         this.processQueue();
       }
@@ -781,10 +814,10 @@
         const url = this.urlInput.value.trim(); if (!url) { this.showToast('Please enter a valid URL', 'error'); return; }
         try {
           const urlObj = new URL(url); if (!['http:', 'https:'].includes(urlObj.protocol)) { this.showToast('Only HTTP/HTTPS URLs are supported', 'error'); return; }
-          let processedUrl = url; let isEmbed = false;
-          if (url.includes('youtube.com') || url.includes('youtu.be')) { const id = this.extractYouTubeId(url); if (id) { processedUrl = `https://www.youtube.com/embed/${id}`; isEmbed = true; } else { this.showToast('Invalid YouTube URL', 'error'); return; } }
-          if (url.includes('vimeo.com')) { const id = this.extractVimeoId(url); if (id) { processedUrl = `https://player.vimeo.com/video/${id}`; isEmbed = true; } else { this.showToast('Invalid Vimeo URL', 'error'); return; } }
-          const mediaItem = { id: this.generateId(), name: this.extractNameFromUrl(url), size: 0, type: isEmbed ? 'video/embed' : '', kind: isEmbed ? 'video' : this.getMediaKind('', url), url: processedUrl, originalUrl: url, isEmbed, dateAdded: new Date(), duration: 0, dimensions: { width: 0, height: 0 }, thumbnail: null };
+          let processedUrl = url; let isEmbed = false; let provider = ''; let youtubeId = '';
+          if (url.includes('youtube.com') || url.includes('youtu.be')) { const id = this.extractYouTubeId(url); if (id) { processedUrl = `https://www.youtube.com/embed/${id}?controls=0&enablejsapi=1&modestbranding=1&rel=0&playsinline=1&fs=0`; isEmbed = true; provider = 'youtube'; youtubeId = id; } else { this.showToast('Invalid YouTube URL', 'error'); return; } }
+          if (url.includes('vimeo.com')) { const id = this.extractVimeoId(url); if (id) { processedUrl = `https://player.vimeo.com/video/${id}`; isEmbed = true; provider = 'vimeo'; } else { this.showToast('Invalid Vimeo URL', 'error'); return; } }
+          const mediaItem = { id: this.generateId(), name: this.extractNameFromUrl(url), size: 0, type: isEmbed ? 'video/embed' : '', kind: isEmbed ? 'video' : this.getMediaKind('', url), url: processedUrl, originalUrl: url, isEmbed, provider, youtubeId, dateAdded: new Date(), duration: 0, dimensions: { width: 0, height: 0 }, thumbnail: null };
           this.mediaLibrary.push(mediaItem); this.persist(); this.renderLibrary(); this.showToast('URL added successfully', 'success'); this.urlInput.value = ''; this.showPage('library');
         } catch (e) { console.error(e); this.showToast('Invalid URL format', 'error'); }
       }
@@ -818,10 +851,11 @@
       openMedia(index) {
         this.currentMediaIndex = index; const item = this.filteredMedia[index]; if (!item) return;
         this.infoTitle.textContent = item.name; this.infoMeta.textContent = `${item.kind.toUpperCase()} • ${item.type || 'Unknown'} • ${this.formatFileSize(item.size)}`; this.infoDescription.textContent = `Added ${this.formatDate(item.dateAdded)}`;
-        [this.videoPlayer, this.audioPlayer, this.imageViewer, this.documentViewer, this.embedViewer].forEach(el => el.classList.add('hidden'));
-        // hide native controls
+        [this.videoPlayer, this.audioPlayer, this.imageViewer, this.documentViewer, this.embedViewer, this.youtubeContainer].forEach(el => el.classList.add('hidden'));
+        // hide native controls by default; allow toggle later
         this.videoPlayer.removeAttribute('controls'); this.audioPlayer.removeAttribute('controls');
-        if (item.isEmbed) { this.embedViewer.src = item.url; this.embedViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
+        if (item.provider === 'youtube' && item.youtubeId) { this.youtubeContainer.classList.remove('hidden'); this.initYouTubePlayer(item.youtubeId); this.playerControls.classList.remove('hidden'); this.currentMedia = null; }
+        else if (item.isEmbed) { this.embedViewer.src = item.url; this.embedViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
         else if (item.kind === 'video') { this.videoPlayer.src = item.url; this.videoPlayer.classList.remove('hidden'); this.playerControls.classList.remove('hidden'); this.currentMedia = this.videoPlayer; }
         else if (item.kind === 'audio') { this.audioPlayer.src = item.url; this.audioPlayer.classList.remove('hidden'); this.playerControls.classList.remove('hidden'); this.currentMedia = this.audioPlayer; }
         else if (item.kind === 'image') { this.imageViewer.src = item.url; this.imageViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
@@ -830,24 +864,28 @@
       }
       openAdjacent(delta) { if (this.currentMediaIndex === -1) return; let next = this.currentMediaIndex + delta; if (next < 0) next = this.filteredMedia.length - 1; if (next >= this.filteredMedia.length) next = 0; this.openMedia(next); }
       closePlayerOverlay() { gsap.to(this.playerOverlay, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => { this.playerOverlay.classList.remove('active'); this.stopCurrentMedia(); } }); }
-      stopCurrentMedia() { if (this.videoPlayer.src) { this.videoPlayer.pause(); this.videoPlayer.src=''; } if (this.audioPlayer.src) { this.audioPlayer.pause(); this.audioPlayer.src=''; } if (this.embedViewer.src) { this.embedViewer.src=''; } this.currentMedia = null; }
-      togglePlayPause() { if (!this.currentMedia || this.currentMedia.tagName === 'IMG') return; if (this.currentMedia.paused) this.currentMedia.play(); else this.currentMedia.pause(); this.updatePlayIcon(); }
-      updatePlayIcon() { if (!this.currentMedia) return; const playing = !this.currentMedia.paused; this.playIcon.innerHTML = playing ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>' : '<polygon points="5 3 19 12 5 21 5 3" fill="white"/>'; }
-      seek(sec) { if (!this.currentMedia || !this.currentMedia.duration) return; this.currentMedia.currentTime = Math.max(0, Math.min(this.currentMedia.duration, this.currentMedia.currentTime + sec)); }
-      toggleMute() { if (!this.currentMedia) return; this.currentMedia.muted = !this.currentMedia.muted; this.updateVolumeIcon(); this.volumeSlider.value = this.currentMedia.muted ? 0 : this.currentMedia.volume * 100; }
-      setVolume(v) { if (!this.currentMedia) return; this.currentMedia.volume = v; this.currentMedia.muted = v === 0; this.updateVolumeIcon(); }
-      updateVolumeIcon() { if (!this.currentMedia) return; const v = this.currentMedia.muted ? 0 : this.currentMedia.volume; if (v === 0) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`; } else if (v < 0.5) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } else { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } }
+      stopCurrentMedia() { if (this.youtubePlayer) { try { this.youtubePlayer.stopVideo(); this.youtubePlayer.destroy(); } catch {} this.youtubePlayer = null; } if (this.videoPlayer.src) { this.videoPlayer.pause(); this.videoPlayer.src=''; } if (this.audioPlayer.src) { this.audioPlayer.pause(); this.audioPlayer.src=''; } if (this.embedViewer.src) { this.embedViewer.src=''; } this.currentMedia = null; }
+      togglePlayPause() { if (this.youtubePlayer) { const s = this.youtubePlayer.getPlayerState?.(); if (s !== 1) this.youtubePlayer.playVideo?.(); else this.youtubePlayer.pauseVideo?.(); this.updatePlayIcon(); return; } if (!this.currentMedia || this.currentMedia.tagName === 'IMG') return; if (this.currentMedia.paused) this.currentMedia.play(); else this.currentMedia.pause(); this.updatePlayIcon(); }
+      updatePlayIcon() { if (this.youtubePlayer) { const playing = this.youtubePlayer.getPlayerState?.() === 1; this.playIcon.innerHTML = playing ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>' : '<polygon points="5 3 19 12 5 21 5 3" fill="white"/>'; return; } if (!this.currentMedia) return; const playing = !this.currentMedia.paused; this.playIcon.innerHTML = playing ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>' : '<polygon points="5 3 19 12 5 21 5 3" fill="white"/>'; }
+      seek(sec) { if (this.youtubePlayer) { const t = Math.max(0, Math.min(this.youtubePlayer.getDuration?.()||0, (this.youtubePlayer.getCurrentTime?.()||0) + sec)); this.youtubePlayer.seekTo?.(t, true); return; } if (!this.currentMedia || !this.currentMedia.duration) return; this.currentMedia.currentTime = Math.max(0, Math.min(this.currentMedia.duration, this.currentMedia.currentTime + sec)); }
+      toggleMute() { if (this.youtubePlayer) { if (this.youtubePlayer.isMuted?.()) this.youtubePlayer.unMute?.(); else this.youtubePlayer.mute?.(); this.updateVolumeIcon(); return; } if (!this.currentMedia) return; this.currentMedia.muted = !this.currentMedia.muted; this.updateVolumeIcon(); this.volumeSlider.value = this.currentMedia.muted ? 0 : this.currentMedia.volume * 100; }
+      setVolume(v) { if (this.youtubePlayer) { this.youtubePlayer.setVolume?.(Math.round(v*100)); this.updateVolumeIcon(); return; } if (!this.currentMedia) return; this.currentMedia.volume = v; this.currentMedia.muted = v === 0; this.updateVolumeIcon(); }
+      updateVolumeIcon() { if (this.youtubePlayer) { const muted = this.youtubePlayer.isMuted?.(); const vol = muted ? 0 : (this.youtubePlayer.getVolume?.()||0)/100; if (vol === 0) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`; } else if (vol < 0.5) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } else { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } return; } if (!this.currentMedia) return; const v = this.currentMedia.muted ? 0 : this.currentMedia.volume; if (v === 0) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`; } else if (v < 0.5) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } else { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } }
       toggleFullscreen() { if (!document.fullscreenElement) this.playerOverlay.requestFullscreen?.(); else document.exitFullscreen?.(); }
       startSeeking(e) { if (!this.currentMedia || !this.currentMedia.duration) return; this.isDragging = true; this.updateSeek(e); }
-      updateSeek(e) { if (!this.isDragging || !this.currentMedia || !this.currentMedia.duration) return; const rect = this.playerProgressContainer.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)); this.currentMedia.currentTime = p * this.currentMedia.duration; this.updatePlayerProgress(); }
+      updateSeek(e) {
+        const rect = this.playerProgressContainer.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        if (this.youtubePlayer) { if (!this.isDragging) return; const d = this.youtubePlayer.getDuration?.() || 0; this.youtubePlayer.seekTo?.(p * d, true); this.updatePlayerProgress(); return; }
+        if (!this.isDragging || !this.currentMedia || !this.currentMedia.duration) return; this.currentMedia.currentTime = p * this.currentMedia.duration; this.updatePlayerProgress();
+      }
       endSeeking() { this.isDragging = false; }
-      updatePlayerProgress() { if (!this.currentMedia || !this.currentMedia.duration) return; const p = this.currentMedia.currentTime / this.currentMedia.duration; this.playerProgressBar.style.width = `${p * 100}%`; this.timeDisplay.textContent = `${this.formatTime(this.currentMedia.currentTime)} / ${this.formatTime(this.currentMedia.duration)}`; }
+      updatePlayerProgress() { if (this.youtubePlayer) { const d = this.youtubePlayer.getDuration?.() || 0; const t = this.youtubePlayer.getCurrentTime?.() || 0; const p = d ? t/d : 0; this.playerProgressBar.style.width = `${p * 100}%`; this.timeDisplay.textContent = `${this.formatTime(t)} / ${this.formatTime(d)}`; return; } if (!this.currentMedia || !this.currentMedia.duration) return; const p = this.currentMedia.currentTime / this.currentMedia.duration; this.playerProgressBar.style.width = `${p * 100}%`; this.timeDisplay.textContent = `${this.formatTime(this.currentMedia.currentTime)} / ${this.formatTime(this.currentMedia.duration)}`; }
       onMediaLoaded() { this.updatePlayerProgress(); this.updatePlayIcon(); this.updateVolumeIcon(); this.applySpeed(); this.applyLoopState(); }
-      onMediaEnded() { this.updatePlayIcon(); if (this.loopToggle.classList.contains('active')) { this.currentMedia?.play?.(); } else { this.openAdjacent(1); } }
-      applySpeed() { const rate = parseFloat(this.speedSelect.value || '1'); if (this.videoPlayer) this.videoPlayer.playbackRate = rate; if (this.audioPlayer) this.audioPlayer.playbackRate = rate; }
+      onMediaEnded() { this.updatePlayIcon(); if (this.loopToggle.classList.contains('active')) { if (this.youtubePlayer) this.youtubePlayer.playVideo?.(); else this.currentMedia?.play?.(); } else { this.openAdjacent(1); } }
+      applySpeed() { const rate = parseFloat(this.speedSelect.value || '1'); if (this.youtubePlayer) { try { this.youtubePlayer.setPlaybackRate?.(rate); } catch {} return; } if (this.videoPlayer) this.videoPlayer.playbackRate = rate; if (this.audioPlayer) this.audioPlayer.playbackRate = rate; }
       toggleLoop() { this.loopToggle.classList.toggle('active'); this.applyLoopState(); }
       applyLoopState() { const looping = this.loopToggle.classList.contains('active'); if (this.videoPlayer) this.videoPlayer.loop = looping; if (this.audioPlayer) this.audioPlayer.loop = looping; }
-      async togglePiP() { try { if (document.pictureInPictureElement) { await document.exitPictureInPicture(); this.pipBtn.classList.remove('active'); } else if (this.videoPlayer && !this.videoPlayer.classList.contains('hidden')) { await this.videoPlayer.requestPictureInPicture(); this.pipBtn.classList.add('active'); } } catch (e) { this.showToast('PiP not available', 'warning'); }}
+      async togglePiP() { try { if (this.youtubePlayer) { this.showToast('PiP not available for YouTube', 'warning'); return; } if (document.pictureInPictureElement) { await document.exitPictureInPicture(); this.pipBtn.classList.remove('active'); } else if (this.videoPlayer && !this.videoPlayer.classList.contains('hidden')) { await this.videoPlayer.requestPictureInPicture(); this.pipBtn.classList.add('active'); } } catch (e) { this.showToast('PiP not available', 'warning'); }}
 
       // Keyboard
       handleKeyboard(e) {
@@ -890,6 +928,25 @@
       }
 
       cleanup() { this.mediaLibrary.forEach(item => { if (item.url?.startsWith('blob:')) URL.revokeObjectURL(item.url); if (item.thumbnail?.startsWith?.('blob:')) URL.revokeObjectURL(item.thumbnail); }); }
+      // Controls mode
+      toggleControlsMode() { this.useCustomControls = !this.useCustomControls; this.applyControlsVisibility(); }
+      applyControlsVisibility() { const showCustom = this.useCustomControls || !!this.youtubePlayer; this.playerControls.classList.toggle('hidden', !showCustom); if (!this.youtubePlayer && this.videoPlayer) { this.videoPlayer.controls = !showCustom; } }
+      // Streaming adapters
+      async attachStreamIfNeeded(url) {
+        if (/\.m3u8(\?|$)/i.test(url)) { await this.loadHls(); if (this.hls && this.hls.isSupported()) { this.hls.loadSource(url); this.hls.attachMedia(this.videoPlayer); } else if (this.videoPlayer.canPlayType('application/vnd.apple.mpegurl')) { this.videoPlayer.src = url; } }
+        if (/\.mpd(\?|$)/i.test(url)) { await this.loadDash(); if (this.dash) { this.dash.initialize(this.videoPlayer, url, true); } }
+      }
+      teardownStreams() { try { if (this.hls) { this.hls.destroy(); this.hls = null; } if (this.dash) { this.dash.reset(); this.dash = null; } } catch {} }
+      loadHls() { return new Promise((resolve) => { if (window.Hls) { this.hls = new Hls({ enableWorker: true }); return resolve(); } const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest'; s.onload = () => { this.hls = new Hls({ enableWorker: true }); resolve(); }; document.head.appendChild(s); }); }
+      loadDash() { return new Promise((resolve) => { if (window.dashjs) { this.dash = dashjs.MediaPlayer().create(); return resolve(); } const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/dashjs@latest/dist/dash.all.min.js'; s.onload = () => { this.dash = dashjs.MediaPlayer().create(); resolve(); }; document.head.appendChild(s); }); }
+      // Subtitles
+      async addSubtitleFile(file) { if (!this.videoPlayer || this.videoPlayer.classList.contains('hidden') || this.youtubePlayer) { this.showToast('Subtitles supported for local video only', 'info'); return; } const ext = file.name.split('.').pop()?.toLowerCase(); let vttBlob = null; if (ext === 'vtt') { vttBlob = new Blob([await file.text()], { type: 'text/vtt' }); } else if (ext === 'srt') { const txt = await file.text(); const vtt = this.srtToVtt(txt); vttBlob = new Blob([vtt], { type: 'text/vtt' }); } else { this.showToast('Please select a .vtt or .srt file', 'warning'); return; } const url = URL.createObjectURL(vttBlob); const track = document.createElement('track'); track.kind = 'subtitles'; track.label = file.name; track.srclang = 'en'; track.src = url; track.default = true; this.videoPlayer.appendChild(track); this.showToast('Subtitle added', 'success'); try { const tlist = this.videoPlayer.textTracks; for (let i=0;i<tlist.length;i++){ tlist[i].mode = i===tlist.length-1 ? 'showing' : 'hidden'; } } catch {} }
+      srtToVtt(srt) { const vtt = 'WEBVTT\n\n' + srt.replace(/\r/g,'').split('\n\n').map(block => block.replace(/^\d+\n/,'').replace(/(\d\d):(\d\d):(\d\d),(\d{3}) --> (\d\d):(\d\d):(\d\d),(\d{3})/g, '$1:$2:$3.$4 --> $5:$6:$7.$8')).join('\n\n'); return vtt; }
+      // YouTube
+      loadYouTubeAPI() { return new Promise((resolve) => { if (window.YT && window.YT.Player) return resolve(); const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; window.onYouTubeIframeAPIReady = () => resolve(); document.head.appendChild(tag); }); }
+      async initYouTubePlayer(videoId) { await this.loadYouTubeAPI(); if (this.youtubePlayer) { try { this.youtubePlayer.destroy(); } catch {} this.youtubePlayer = null; } this.youtubePlayer = new YT.Player('youtubeContainer', { videoId, playerVars: { controls: 0, disablekb: 1, modestbranding: 1, rel: 0, fs: 0, playsinline: 1 }, events: { 'onReady': () => { this.updatePlayIcon(); this.updateVolumeIcon(); this.applySpeed(); this.applyControlsVisibility(); this.startYouTubeProgressTimer(); }, 'onStateChange': (e) => { this.updatePlayIcon(); if (e.data === YT.PlayerState.ENDED) this.onMediaEnded(); } } }); }
+      startYouTubeProgressTimer() { if (this.ytInterval) clearInterval(this.ytInterval); this.ytInterval = setInterval(() => this.updatePlayerProgress(), 250); }
+      clearYouTube() { if (this.ytInterval) { clearInterval(this.ytInterval); this.ytInterval = null; } try { this.youtubePlayer?.destroy?.(); } catch {} this.youtubePlayer = null; document.getElementById('youtubeContainer').innerHTML = ''; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
