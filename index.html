@@ -1198,7 +1198,7 @@
         
         // Player elements
         this.playerOverlay = document.getElementById('playerOverlay');
-        this.closePlayer = document.getElementById('closePlayer');
+        this.closePlayerBtn = document.getElementById('closePlayer');
         this.videoPlayer = document.getElementById('videoPlayer');
         this.audioPlayer = document.getElementById('audioPlayer');
         this.imageViewer = document.getElementById('imageViewer');
@@ -1249,6 +1249,8 @@
         this.urlInput.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') this.handleUrlAdd();
         });
+        // Click anywhere in upload area to open file picker
+        this.uploadArea.addEventListener('click', () => this.fileInput.click());
 
         // Drag and drop
         this.uploadArea.addEventListener('dragover', (e) => {
@@ -1283,7 +1285,7 @@
         });
 
         // Player controls
-        this.closePlayer.addEventListener('click', () => this.closePlayer());
+        this.closePlayerBtn.addEventListener('click', () => this.closePlayerOverlay());
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.rewindBtn.addEventListener('click', () => this.seek(-10));
         this.forwardBtn.addEventListener('click', () => this.seek(10));
@@ -1363,32 +1365,16 @@
           link.classList.toggle('active', link.dataset.page === pageId);
         });
 
-        // Hide current page
-        const currentPage = document.querySelector('.page.active');
-        if (currentPage) {
-          gsap.to(currentPage, {
-            opacity: 0,
-            y: -20,
-            duration: 0.3,
-            ease: 'power2.in',
-            onComplete: () => {
-              currentPage.classList.remove('active');
-              this.showNewPage(pageId);
-            }
-          });
-        } else {
-          this.showNewPage(pageId);
-        }
-      }
-
-      showNewPage(pageId) {
+        // Hide all pages and show only the requested one (no dependency on GSAP for core toggle)
+        this.pages.forEach(p => p.classList.remove('active'));
         const newPage = document.getElementById(pageId);
+        if (!newPage) return;
         newPage.classList.add('active');
-        
-        gsap.fromTo(newPage, 
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        );
+
+        // Optional animation if GSAP is available
+        if (window.gsap) {
+          gsap.fromTo(newPage, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+        }
 
         // Animate page-specific content
         if (pageId === 'library') {
@@ -1758,7 +1744,7 @@
         );
       }
 
-      closePlayer() {
+      closePlayerOverlay() {
         gsap.to(this.playerOverlay, {
           opacity: 0,
           duration: 0.3,
@@ -1924,7 +1910,7 @@
             break;
           case 'Escape':
             e.preventDefault();
-            this.closePlayer();
+            this.closePlayerOverlay();
             break;
         }
       }
