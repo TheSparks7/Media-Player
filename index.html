@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>The Sparks</title>
+  <title>Copilot Media</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -35,13 +35,21 @@
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
       --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+      /* Liquid Glass */
+      --liquid-glass: rgba(255, 255, 255, 0.1);
+      --liquid-glass-strong: rgba(255, 255, 255, 0.2);
+      --liquid-glass-border: rgba(255, 255, 255, 0.2);
+      --liquid-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --liquid-glass-blur: blur(20px) saturate(180%);
+      --liquid-glass-backdrop: rgba(255, 255, 255, 0.05);
+      --glass-distortion: url(#glass-distortion);
+      --liquid-glass-advanced: rgba(255, 255, 255, 0.25);
+      --liquid-glass-shine: rgba(255, 255, 255, 0.5);
+      --liquid-glass-inset: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5), inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       height: 100%;
@@ -49,7 +57,7 @@
       font-feature-settings: 'cv11', 'ss01';
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      background: 
+      background:
         radial-gradient(ellipse at 20% 0%, rgba(0, 122, 255, 0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 100%, rgba(88, 86, 214, 0.15) 0%, transparent 50%),
         var(--bg);
@@ -59,875 +67,179 @@
     }
 
     /* Navigation */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: rgba(10, 11, 15, 0.8);
-      backdrop-filter: var(--blur);
-      border-bottom: 1px solid var(--border);
-      transition: var(--transition);
-    }
-
-    .nav-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: -0.02em;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--brand), var(--accent));
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .nav-link {
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-      color: var(--text-secondary);
-      font-weight: 500;
-      transition: var(--transition);
-      position: relative;
-    }
-
-    .nav-link:hover {
-      color: var(--text);
-      background: var(--glass);
-    }
-
-    .nav-link.active {
-      color: var(--text);
-      background: var(--glass-strong);
-    }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--liquid-glass-backdrop); backdrop-filter: var(--liquid-glass-blur); border-bottom: 1px solid var(--liquid-glass-border); transition: var(--transition); box-shadow: var(--liquid-glass-shadow); }
+    .nav-content { max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--brand), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-link { padding: 8px 16px; border-radius: 20px; text-decoration: none; color: var(--text-secondary); font-weight: 500; transition: var(--transition); position: relative; }
+    .nav-link:hover { color: var(--text); background: var(--liquid-glass); backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); box-shadow: var(--liquid-glass-shadow); }
+    .nav-link.active { color: var(--text); background: var(--liquid-glass-strong); backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); box-shadow: var(--liquid-glass-shadow); }
 
     /* Pages */
-    .page {
-      display: none;
-      min-height: 100vh;
-      padding-top: 80px;
-    }
+    .page { display: none; min-height: 100vh; padding-top: 80px; }
+    .page.active { display: block; }
 
-    .page.active {
-      display: block;
-    }
+    /* Home */
+    .hero { min-height: 90vh; display: grid; align-items: center; justify-content: center; padding: 40px 24px; position: relative; overflow: hidden; }
+    .hero-content { max-width: 1000px; text-align: center; z-index: 2; position: relative; margin: 0 auto; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); border-radius: 24px; font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 24px; backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .hero h1 { font-size: clamp(48px, 8vw, 96px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; background: linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; }
+    .hero p { font-size: clamp(18px, 3vw, 24px); color: var(--text-secondary); line-height: 1.6; max-width: 700px; margin: 0 auto 40px; }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: var(--radius-lg); font-weight: 600; text-decoration: none; transition: var(--transition); cursor: pointer; border: none; font-size: 16px; position: relative; overflow: hidden; }
+    .btn-primary { background: var(--brand); color: white; box-shadow: var(--shadow); }
+    .btn-primary:hover { background: var(--brand-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .btn-secondary { background: var(--liquid-glass); color: var(--text); border: 1px solid var(--liquid-glass-border); backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .btn-secondary:hover { background: var(--liquid-glass-strong); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); }
 
-    /* Hero Section */
-    .hero {
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-content {
-      max-width: 1000px;
-      text-align: center;
-      z-index: 2;
-      position: relative;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 24px;
-    }
-
-    .hero h1 {
-      font-size: clamp(48px, 8vw, 96px);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      background: linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 24px;
-    }
-
-    .hero p {
-      font-size: clamp(18px, 3vw, 24px);
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-width: 700px;
-      margin: 0 auto 40px;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 32px;
-      border-radius: var(--radius-lg);
-      font-weight: 600;
-      text-decoration: none;
-      transition: var(--transition);
-      cursor: pointer;
-      border: none;
-      font-size: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-primary {
-      background: var(--brand);
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .btn-primary:hover {
-      background: var(--brand-hover);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-secondary {
-      background: var(--glass);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-secondary:hover {
-      background: var(--glass-strong);
-      transform: translateY(-2px);
-    }
-
-    /* Features Grid */
-    .features {
-      padding: 80px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 32px;
-      margin-top: 60px;
-    }
-
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 32px;
-      text-align: center;
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--border-strong);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .feature-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 24px;
-      background: linear-gradient(135deg, var(--brand), var(--accent));
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .feature-card h3 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-
-    .feature-card p {
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
+    /* Features (home) */
+    .features { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; margin-top: 60px; }
+    .feature-card { background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); border-radius: var(--radius-xl); padding: 32px; text-align: center; transition: var(--transition); position: relative; overflow: hidden; backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .feature-card:hover { transform: translateY(-8px); border-color: var(--liquid-glass-border); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); background: var(--liquid-glass-strong); }
+    .feature-icon { width: 64px; height: 64px; margin: 0 auto 24px; background: linear-gradient(135deg, var(--brand), var(--accent)); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+    .feature-card h3 { font-size: 24px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .feature-card p { color: var(--text-secondary); line-height: 1.6; }
 
     /* Library */
-    .library-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 24px;
-    }
+    .library-container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .library-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; gap: 24px; }
+    .library-title { font-size: clamp(32px, 5vw, 48px); font-weight: 800; letter-spacing: -0.03em; }
+    .library-subtitle { color: var(--text-secondary); font-size: 18px; margin-top: 8px; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-chip { padding: 10px 20px; border-radius: 24px; background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); color: var(--text-secondary); cursor: pointer; transition: var(--transition); font-weight: 500; font-size: 14px; backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .filter-chip.active, .filter-chip:hover { background: var(--brand); color: white; border-color: var(--brand); box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3); }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .media-card { background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); border-radius: 16px; overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .media-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--liquid-glass-border); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); background: var(--liquid-glass-strong); }
+    .media-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); opacity: 0; transition: opacity 0.3s ease; z-index: 1; }
+    .media-card:hover::before { opacity: 1; }
+    .media-thumbnail { width: 100%; height: 200px; background: var(--bg-elev); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: 12px 12px 0 0; }
+    .media-thumbnail img, .media-thumbnail video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .media-card:hover .media-thumbnail img, .media-card:hover .media-thumbnail video { transform: scale(1.05); }
+    .thumbnail-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7)); opacity: 0; transition: var(--transition); }
+    .media-card:hover .thumbnail-overlay { opacity: 1; }
+    .media-badge { position: absolute; bottom: 12px; right: 12px; background: rgba(0, 0, 0, 0.8); color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; backdrop-filter: var(--blur); }
+    .media-info { padding: 16px; position: relative; z-index: 2; }
+    .media-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--text); }
+    .media-meta { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; flex-wrap: wrap; }
+    .media-meta span { display: flex; align-items: center; gap: 4px; }
+    .media-description { color: var(--text-tertiary); font-size: 13px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-    .library-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 32px;
-      gap: 24px;
-    }
+    /* Upload Page */
+    .upload-section { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .upload-hero { margin: 24px 0 40px; }
+    .upload-area { border: 3px dashed var(--liquid-glass-border); border-radius: 20px; padding: 48px 28px; text-align: center; margin: 0 auto; max-width: 940px; transition: all 0.3s ease; cursor: pointer; background: rgba(255, 255, 255, 0.03); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
+    .upload-area:hover, .upload-area.dragover { border-color: var(--brand); background: rgba(0, 122, 255, 0.08); transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0, 122, 255, 0.2); }
+    .upload-content { position: relative; z-index: 3; color: var(--text); display: grid; gap: 14px; justify-items: center; }
+    .upload-icon { width: 90px; height: 90px; background: linear-gradient(135deg, var(--brand), var(--accent)); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; box-shadow: var(--shadow); }
+    .upload-title { font-size: 22px; font-weight: 700; }
+    .upload-subtext { color: var(--text-secondary); margin-bottom: 4px; }
+    .upload-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .url-input { width: 100%; max-width: 520px; padding: 14px 18px; border-radius: var(--radius-lg); background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); color: var(--text); font-size: 16px; transition: var(--transition); backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .url-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2), var(--liquid-glass-shadow); background: var(--liquid-glass-strong); }
 
-    .library-title {
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
+    /* Upload Queue */
+    .queue { max-width: 940px; margin: 0 auto; display: grid; gap: 12px; }
+    .queue-item { display: grid; grid-template-columns: 48px 1fr auto; gap: 12px; align-items: center; background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); border-radius: 14px; padding: 10px 12px; backdrop-filter: var(--liquid-glass-blur); box-shadow: var(--liquid-glass-shadow); }
+    .queue-thumb { width: 48px; height: 48px; border-radius: 10px; background: var(--bg-elev); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .queue-info { display: grid; gap: 4px; }
+    .queue-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .queue-meta { color: var(--text-tertiary); font-size: 12px; }
+    .queue-actions { display: flex; gap: 8px; align-items: center; }
+    .queue-remove { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--liquid-glass-border); background: var(--liquid-glass); color: white; display: grid; place-items: center; cursor: pointer; transition: var(--transition); }
+    .queue-remove:hover { background: var(--liquid-glass-strong); transform: scale(1.05); }
+    .queue-progress-wrap { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.18); border-radius: 4px; overflow: hidden; }
+    .queue-progress { width: 0%; height: 100%; background: linear-gradient(90deg, var(--brand), var(--accent)); transition: width .25s ease; }
 
-    .library-subtitle {
-      color: var(--text-secondary);
-      font-size: 18px;
-      margin-top: 8px;
-    }
-
-    .filters {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-chip {
-      padding: 10px 20px;
-      border-radius: 24px;
-      background: var(--glass);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: var(--transition);
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .filter-chip.active,
-    .filter-chip:hover {
-      background: var(--brand);
-      color: white;
-      border-color: var(--brand);
-    }
-
-    /* Media Grid */
-    .media-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .media-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      cursor: pointer;
-      transition: var(--transition);
-      position: relative;
-    }
-
-    .media-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--border-strong);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .media-thumbnail {
-      width: 100%;
-      height: 180px;
-      background: var(--bg-elev);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .media-thumbnail img,
-    .media-thumbnail video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .thumbnail-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7));
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .media-card:hover .thumbnail-overlay {
-      opacity: 1;
-    }
-
-    .media-badge {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      backdrop-filter: var(--blur);
-    }
-
-    .media-info {
-      padding: 20px;
-    }
-
-    .media-title {
-      font-weight: 600;
-      font-size: 16px;
-      margin-bottom: 8px;
-      line-height: 1.4;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .media-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-
-    .media-description {
-      color: var(--text-tertiary);
-      font-size: 14px;
-      line-height: 1.5;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    /* Upload Area */
-    .upload-section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 24px;
-    }
-
-    .upload-area {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-xl);
-      background: var(--glass);
-      padding: 60px 40px;
-      text-align: center;
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .upload-area:hover,
-    .upload-area.dragover {
-      border-color: var(--brand);
-      background: rgba(0, 122, 255, 0.1);
-      transform: scale(1.02);
-    }
-
-    .upload-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, var(--brand), var(--accent));
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .upload-text {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .upload-subtext {
-      color: var(--text-secondary);
-      margin-bottom: 32px;
-    }
-
-    .upload-actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 32px;
-    }
-
-    .url-input {
-      width: 100%;
-      max-width: 400px;
-      padding: 16px 20px;
-      border-radius: var(--radius-lg);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 16px;
-      transition: var(--transition);
-    }
-
-    .url-input:focus {
-      outline: none;
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-    }
-
-    .url-input::placeholder {
-      color: var(--text-tertiary);
-    }
+    /* Upload Progress (global) */
+    .upload-progress { margin: 24px auto; max-width: 940px; }
+    .upload-progress-card { padding: 22px; border-radius: 16px; position: relative; overflow: hidden; }
+    .progress-text { font-size: 1.05em; margin-bottom: 12px; text-align: center; }
+    .progress-bar-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.2); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+    .upload-progress-bar { height: 100%; background: linear-gradient(90deg, var(--brand), var(--accent)); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+    .progress-status { text-align: center; font-weight: 600; color: var(--brand); }
 
     /* Player */
-    .player-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: var(--blur);
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
+    .player-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); backdrop-filter: var(--blur); z-index: 2000; display: none; align-items: center; justify-content: center; }
+    .player-overlay.active { display: flex; }
+    .player-container { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+    .media-viewer { max-width: 90vw; max-height: 82vh; width: auto; height: auto; }
+    .player-controls { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--liquid-glass-backdrop); backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); border-radius: var(--radius-xl); padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 440px; transition: var(--transition); box-shadow: var(--liquid-glass-shadow); position: relative; overflow: hidden; }
+    .player-controls::before { content: ''; position: absolute; inset: 0; background: var(--liquid-glass-advanced); backdrop-filter: blur(3px); filter: var(--glass-distortion); z-index: 0; }
+    .player-controls::after { content: ''; position: absolute; inset: 0; box-shadow: var(--liquid-glass-inset); z-index: 1; pointer-events: none; }
+    .player-controls > * { position: relative; z-index: 2; }
+    .progress-container { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.2); border-radius: 3px; cursor: pointer; position: relative; transition: var(--transition); }
+    .progress-container:hover { height: 8px; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--brand), var(--accent)); border-radius: 3px; transition: width 0.1s linear; position: relative; }
+    .progress-thumb { position: absolute; top: 50%; right: -6px; transform: translateY(-50%); width: 12px; height: 12px; background: white; border-radius: 50%; box-shadow: var(--shadow); opacity: 0; transition: var(--transition); }
+    .progress-container:hover .progress-thumb { opacity: 1; }
+    .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .controls-left, .controls-right, .controls-center { display: flex; align-items: center; gap: 10px; }
+    .control-btn { width: 40px; height: 40px; border: none; background: var(--liquid-glass); color: white; border-radius: 50%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); box-shadow: var(--liquid-glass-shadow); }
+    .control-btn:hover { background: var(--liquid-glass-strong); transform: scale(1.1); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+    .play-btn { width: 48px; height: 48px; background: linear-gradient(135deg, var(--brand), var(--accent)); box-shadow: var(--shadow); }
+    .volume-container { display: flex; align-items: center; gap: 8px; }
+    .volume-slider { width: 90px; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; appearance: none; cursor: pointer; }
+    .volume-slider::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: white; border-radius: 50%; cursor: pointer; box-shadow: var(--shadow-sm); }
+    .time-display { font-size: 14px; font-weight: 500; color: var(--text-secondary); min-width: 90px; text-align: center; }
+    .speed-select { background: var(--liquid-glass); color: white; border: 1px solid var(--liquid-glass-border); border-radius: 10px; padding: 6px 8px; cursor: pointer; }
+    .toggle { background: var(--liquid-glass); border: 1px solid var(--liquid-glass-border); color: white; border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+    .toggle.active { background: var(--brand); }
+    .player-info { position: absolute; top: 24px; left: 24px; background: var(--liquid-glass-backdrop); backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); border-radius: var(--radius-lg); padding: 16px; max-width: 420px; transition: var(--transition); box-shadow: var(--liquid-glass-shadow); }
+    .info-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .info-meta { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+    .info-description { color: var(--text-tertiary); font-size: 14px; line-height: 1.5; }
+    .close-btn { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border: none; background: var(--liquid-glass); color: white; border-radius: 50%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; backdrop-filter: var(--liquid-glass-blur); border: 1px solid var(--liquid-glass-border); box-shadow: var(--liquid-glass-shadow); }
+    .close-btn:hover { background: var(--liquid-glass-strong); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+
+    /* Toasts */
+    .toast-container { position: fixed; top: 100px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; }
+    .toast { background: var(--liquid-glass-backdrop); border: 1px solid var(--liquid-glass-border); border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; gap: 12px; box-shadow: var(--liquid-glass-shadow); backdrop-filter: var(--liquid-glass-blur); min-width: 300px; transform: translateX(100%); transition: var(--transition); }
+    .toast-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .toast-success { border-left: 4px solid var(--success); }
+    .toast-error { border-left: 4px solid var(--error); }
+    .toast-warning { border-left: 4px solid var(--warning); }
+    .toast-info { border-left: 4px solid var(--brand); }
+
+    /* Liquid Glass helpers */
+    .liquidGlass-wrapper { position: relative; display: block; overflow: hidden; border-radius: 16px; }
+    .liquidGlass-effect { position: absolute; z-index: 0; inset: 0; backdrop-filter: blur(3px); filter: var(--glass-distortion); overflow: hidden; isolation: isolate; pointer-events: none; }
+    .liquidGlass-tint { z-index: 1; position: absolute; inset: 0; background: var(--liquid-glass-advanced); pointer-events: none; }
+    .liquidGlass-shine { position: absolute; inset: -100% -100%; z-index: 2; background: radial-gradient(120px 60px at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.35), rgba(255,255,255,0) 60%); mix-blend-mode: screen; transition: opacity .2s; opacity: .35; pointer-events: none; }
+
+    /* Utility */
+    .hidden { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
     }
 
-    .player-overlay.active {
-      display: flex;
-    }
-
-    .player-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .media-viewer {
-      max-width: 90vw;
-      max-height: 90vh;
-      width: auto;
-      height: auto;
-    }
-
-    .media-viewer.full {
-      width: 100vw;
-      height: 100vh;
-      max-width: none;
-      max-height: none;
-    }
-
-    .player-controls {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(18, 19, 26, 0.9);
-      backdrop-filter: var(--blur);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 400px;
-      transition: var(--transition);
-    }
-
-    .progress-container {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-      transition: var(--transition);
-    }
-
-    .progress-container:hover {
-      height: 8px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--brand), var(--accent));
-      border-radius: 3px;
-      transition: width 0.1s linear;
-      position: relative;
-    }
-
-    .progress-thumb {
-      position: absolute;
-      top: 50%;
-      right: -6px;
-      transform: translateY(-50%);
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .progress-container:hover .progress-thumb {
-      opacity: 1;
-    }
-
-    .controls-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .controls-left,
-    .controls-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .control-btn {
-      width: 40px;
-      height: 40px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .control-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.1);
-    }
-
-    .play-btn {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--brand), var(--accent));
-      box-shadow: var(--shadow);
-    }
-
-    .volume-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .volume-slider {
-      width: 80px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 2px;
-      appearance: none;
-      cursor: pointer;
-    }
-
-    .volume-slider::-webkit-slider-thumb {
-      appearance: none;
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .time-display {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      min-width: 80px;
-      text-align: center;
-    }
-
-    .player-info {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      background: rgba(18, 19, 26, 0.9);
-      backdrop-filter: var(--blur);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      max-width: 400px;
-      transition: var(--transition);
-    }
-
-    .info-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .info-meta {
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .info-description {
-      color: var(--text-tertiary);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 40px;
-      right: 40px;
-      width: 44px;
-      height: 44px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .close-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Toast Notifications */
-    .toast-container {
-      position: fixed;
-      top: 100px;
-      right: 24px;
-      z-index: 3000;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .toast {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: var(--blur);
-      min-width: 300px;
-      transform: translateX(100%);
-      transition: var(--transition);
-    }
-
-    .toast.show {
-      transform: translateX(0);
-    }
-
-    .toast-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--success);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    /* Responsive Design */
+    /* Responsive */
     @media (max-width: 768px) {
-      .nav-content {
-        padding: 12px 20px;
-      }
-
-      .hero {
-        padding: 60px 20px;
-      }
-
-      .hero-actions {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .btn {
-        width: 100%;
-        max-width: 280px;
-        justify-content: center;
-      }
-
-      .library-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .filters {
-        width: 100%;
-        justify-content: flex-start;
-        overflow-x: auto;
-        padding-bottom: 8px;
-      }
-
-      .filter-chip {
-        white-space: nowrap;
-      }
-
-      .media-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 16px;
-      }
-
-      .player-controls {
-        min-width: calc(100vw - 40px);
-        padding: 16px 20px;
-      }
-
-      .player-info {
-        top: 20px;
-        left: 20px;
-        right: 20px;
-        max-width: none;
-      }
-
-      .close-btn {
-        top: 20px;
-        right: 20px;
-      }
-
-      .upload-area {
-        padding: 40px 20px;
-      }
+      .nav-content { padding: 12px 20px; }
+      .hero { padding: 60px 20px; }
+      .btn { width: 100%; max-width: 280px; justify-content: center; }
+      .library-header { flex-direction: column; align-items: flex-start; }
+      .filters { width: 100%; justify-content: flex-start; overflow-x: auto; padding-bottom: 8px; }
+      .filter-chip { white-space: nowrap; }
+      .media-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+      .player-controls { min-width: calc(100vw - 40px); padding: 14px 14px; }
+      .player-info { top: 16px; left: 16px; right: 16px; max-width: none; }
+      .close-btn { top: 16px; right: 16px; }
+      .upload-area { padding: 36px 18px; }
     }
-
     @media (max-width: 480px) {
-      .controls-row {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .volume-container {
-        order: 3;
-        flex-basis: 100%;
-        justify-content: center;
-        margin-top: 8px;
-      }
-
-      .volume-slider {
-        width: 120px;
-      }
-    }
-
-    /* Animations */
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .animate-slide-in {
-      animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    .animate-fade-in {
-      animation: fadeIn 0.4s ease-out forwards;
-    }
-
-    .animate-scale-in {
-      animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    /* Utility Classes */
-    .hidden {
-      display: none;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+      .controls-row { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .volume-slider { width: 120px; }
+      .time-display { min-width: 72px; font-size: 12px; }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
   <nav class="nav">
     <div class="nav-content">
       <div class="logo">
@@ -958,7 +270,7 @@
           Professional Media Experience
         </div>
         <h1>The future of media playback</h1>
-        <p>Experience seamless media management with intuitive controls, stunning visuals, and lightning-fast performance. Built for creators, designed for everyone.</p>
+        <p>Experience seamless media management with intuitive controls, stunning visuals, and lightning-fast performance.</p>
         <div class="hero-actions">
           <button class="btn btn-primary" id="heroUpload">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -979,7 +291,6 @@
       </div>
     </div>
 
-    <!-- Features Section -->
     <section class="features">
       <div class="features-grid">
         <div class="feature-card">
@@ -990,7 +301,7 @@
             </svg>
           </div>
           <h3>Universal Playback</h3>
-          <p>Play any media format with our advanced codec support and adaptive streaming technology.</p>
+          <p>Play any media format with advanced codec support and adaptive streaming.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -1001,7 +312,7 @@
             </svg>
           </div>
           <h3>Smart Organization</h3>
-          <p>Intelligent tagging and categorization keeps your media library organized and searchable.</p>
+          <p>Tagging and categorization keep your library organized and searchable.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -1010,7 +321,7 @@
             </svg>
           </div>
           <h3>Lightning Fast</h3>
-          <p>Optimized performance with instant loading, smooth playback, and responsive controls.</p>
+          <p>Instant loading, smooth playback, and responsive controls.</p>
         </div>
       </div>
     </section>
@@ -1043,46 +354,69 @@
       <div class="library-header">
         <div>
           <h2 class="library-title">Upload Media</h2>
-          <p class="library-subtitle">Add files or URLs to build your personal media library</p>
+          <p class="library-subtitle">Drag & drop files, paste URLs, and manage a queue</p>
         </div>
       </div>
 
-      <div class="upload-area" id="uploadArea">
-        <div class="upload-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17,8 12,3 7,8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
+      <div class="upload-hero">
+        <div class="upload-area liquidGlass-wrapper" id="uploadArea">
+          <div class="liquidGlass-effect"></div>
+          <div class="liquidGlass-tint"></div>
+          <div class="liquidGlass-shine"></div>
+          <div class="upload-content">
+            <div class="upload-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="upload-title">Drag and drop your media files here</div>
+            <div class="upload-subtext">Video, audio, images, and documents up to 100MB each</div>
+            <div class="upload-actions">
+              <button class="btn btn-primary" id="browseFiles">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                Choose Files
+              </button>
+              <button class="btn btn-secondary" id="addUrl">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Add URL
+              </button>
+            </div>
+            <input type="text" class="url-input liquidGlass-wrapper" id="urlInput" placeholder="Paste a URL (YouTube, Vimeo, direct media)">
+            <input type="file" id="fileInput" multiple accept="*/*" style="display: none;">
+          </div>
         </div>
-        <div class="upload-text">Drop files here or click to browse</div>
-        <div class="upload-subtext">Support for video, audio, images, and documents</div>
-        <div class="upload-actions">
-          <button class="btn btn-primary" id="browseFiles">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14,2 14,8 20,8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10,9 9,9 8,9"/>
-            </svg>
-            Choose Files
-          </button>
-          <button class="btn btn-secondary" id="addUrl">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
-            Add URL
-          </button>
+      </div>
+
+      <!-- Upload Queue List -->
+      <div class="queue" id="uploadQueue"></div>
+
+      <!-- Upload Progress (global) -->
+      <div class="upload-progress" id="uploadProgress" style="display: none;">
+        <div class="upload-progress-card liquidGlass-wrapper">
+          <div class="liquidGlass-effect"></div>
+          <div class="liquidGlass-tint"></div>
+          <div class="liquidGlass-shine"></div>
+          <div class="progress-content">
+            <div class="progress-text">Processing files...</div>
+            <div class="progress-bar-container">
+              <div class="upload-progress-bar" id="uploadProgressBar"></div>
+            </div>
+            <div class="progress-status" id="uploadProgressStatus">0%</div>
+          </div>
         </div>
-        <input type="text" class="url-input" id="urlInput" placeholder="Paste a URL (YouTube, Vimeo, etc.)">
-        <input type="file" id="fileInput" multiple accept="*/*" style="display: none;">
       </div>
     </div>
   </section>
 
-  <!-- Media Player Overlay -->
+  <!-- Player Overlay -->
   <div class="player-overlay" id="playerOverlay">
     <div class="player-container">
       <button class="close-btn" id="closePlayer">
@@ -1098,22 +432,27 @@
         <div class="info-description" id="infoDescription">Media description</div>
       </div>
 
-      <!-- Media Elements -->
-      <video class="media-viewer hidden" id="videoPlayer" controls></video>
-      <audio class="media-viewer hidden" id="audioPlayer" controls></audio>
+      <!-- Hide native controls for custom UI; we’ll control via JS -->
+      <video class="media-viewer hidden" id="videoPlayer" playsinline></video>
+      <audio class="media-viewer hidden" id="audioPlayer"></audio>
       <img class="media-viewer hidden" id="imageViewer" alt="">
       <iframe class="media-viewer hidden" id="documentViewer"></iframe>
       <iframe class="media-viewer hidden" id="embedViewer" allowfullscreen></iframe>
 
-      <!-- Custom Controls for Video/Audio -->
       <div class="player-controls hidden" id="playerControls">
-        <div class="progress-container" id="progressContainer">
-          <div class="progress-bar" id="progressBar">
+        <div class="progress-container" id="playerProgressContainer">
+          <div class="progress-bar" id="playerProgressBar">
             <div class="progress-thumb"></div>
           </div>
         </div>
         <div class="controls-row">
           <div class="controls-left">
+            <button class="control-btn" id="prevBtn" title="Previous">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="19 20 9 12 19 4 19 20"/>
+                <rect x="5" y="4" width="2" height="16"/>
+              </svg>
+            </button>
             <button class="control-btn" id="rewindBtn" title="Rewind 10s">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="11 19 2 12 11 5 11 19"/>
@@ -1131,6 +470,25 @@
                 <polygon points="2 19 11 12 2 5 2 19"/>
               </svg>
             </button>
+            <button class="control-btn" id="nextBtn" title="Next">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 4 15 12 5 20 5 4"/>
+                <rect x="17" y="4" width="2" height="16"/>
+              </svg>
+            </button>
+          </div>
+          <div class="controls-center">
+            <select id="speedSelect" class="speed-select" title="Speed">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="1.75">1.75x</option>
+              <option value="2">2x</option>
+            </select>
+            <button id="loopToggle" class="toggle" title="Loop">Loop</button>
+            <button id="pipBtn" class="toggle" title="Picture-in-Picture">PiP</button>
           </div>
           <div class="controls-right">
             <div class="volume-container">
@@ -1154,10 +512,18 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Scripts -->
+  <!-- SVG Filters for Liquid Glass -->
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="0" height="0" style="position: absolute;">
+    <defs>
+      <filter id="glass-distortion">
+        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.03" numOctaves="5" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" xChannelSelector="R" yChannelSelector="B" result="displaced" />
+      </filter>
+    </defs>
+  </svg>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script>
     class CopilotMedia {
@@ -1166,841 +532,372 @@
         this.filteredMedia = [];
         this.currentFilter = 'all';
         this.currentMediaIndex = -1;
-        this.isPlaying = false;
         this.isDragging = false;
         this.currentMedia = null;
+        this.queue = [];
 
         this.initElements();
         this.bindEvents();
         this.initAnimations();
+        this.loadPersisted();
         this.renderLibrary();
       }
 
       initElements() {
-        // Navigation
         this.navLinks = document.querySelectorAll('.nav-link');
-        this.pages = document.querySelectorAll('.page');
-        
-        // Hero buttons
         this.heroUpload = document.getElementById('heroUpload');
         this.heroLibrary = document.getElementById('heroLibrary');
-        
-        // Upload elements
+
+        // Upload
         this.uploadArea = document.getElementById('uploadArea');
         this.fileInput = document.getElementById('fileInput');
         this.browseFiles = document.getElementById('browseFiles');
         this.urlInput = document.getElementById('urlInput');
         this.addUrl = document.getElementById('addUrl');
-        
-        // Library elements
+        this.uploadQueue = document.getElementById('uploadQueue');
+
+        // Library
         this.mediaGrid = document.getElementById('mediaGrid');
         this.filterChips = document.querySelectorAll('.filter-chip');
-        
-        // Player elements
+
+        // Player
         this.playerOverlay = document.getElementById('playerOverlay');
-        this.closePlayer = document.getElementById('closePlayer');
+        this.closePlayerBtn = document.getElementById('closePlayer');
         this.videoPlayer = document.getElementById('videoPlayer');
         this.audioPlayer = document.getElementById('audioPlayer');
         this.imageViewer = document.getElementById('imageViewer');
         this.documentViewer = document.getElementById('documentViewer');
         this.embedViewer = document.getElementById('embedViewer');
-        
-        // Player info
-        this.playerInfo = document.getElementById('playerInfo');
-        this.infoTitle = document.getElementById('infoTitle');
-        this.infoMeta = document.getElementById('infoMeta');
-        this.infoDescription = document.getElementById('infoDescription');
-        
-        // Player controls
         this.playerControls = document.getElementById('playerControls');
-        this.progressContainer = document.getElementById('progressContainer');
-        this.progressBar = document.getElementById('progressBar');
+        this.playerProgressContainer = document.getElementById('playerProgressContainer');
+        this.playerProgressBar = document.getElementById('playerProgressBar');
         this.playPauseBtn = document.getElementById('playPauseBtn');
         this.playIcon = document.getElementById('playIcon');
         this.rewindBtn = document.getElementById('rewindBtn');
         this.forwardBtn = document.getElementById('forwardBtn');
+        this.prevBtn = document.getElementById('prevBtn');
+        this.nextBtn = document.getElementById('nextBtn');
         this.muteBtn = document.getElementById('muteBtn');
         this.volumeSlider = document.getElementById('volumeSlider');
         this.volumeIcon = document.getElementById('volumeIcon');
         this.timeDisplay = document.getElementById('timeDisplay');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
-        
-        // Toast container
+        this.speedSelect = document.getElementById('speedSelect');
+        this.loopToggle = document.getElementById('loopToggle');
+        this.pipBtn = document.getElementById('pipBtn');
+
+        // Info
+        this.infoTitle = document.getElementById('infoTitle');
+        this.infoMeta = document.getElementById('infoMeta');
+        this.infoDescription = document.getElementById('infoDescription');
+
+        // Toast
         this.toastContainer = document.getElementById('toastContainer');
+
+        // Upload progress (global)
+        this.uploadProgress = document.getElementById('uploadProgress');
+        this.uploadProgressBar = document.getElementById('uploadProgressBar');
+        this.uploadProgressStatus = document.getElementById('uploadProgressStatus');
       }
 
       bindEvents() {
         // Navigation
-        this.navLinks.forEach(link => {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showPage(link.dataset.page);
-          });
-        });
-
-        // Hero buttons
+        this.navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); this.showPage(link.dataset.page); }, { passive: true }));
         this.heroUpload.addEventListener('click', () => this.showPage('upload'));
         this.heroLibrary.addEventListener('click', () => this.showPage('library'));
 
-        // Upload events
+        // Upload
         this.browseFiles.addEventListener('click', () => this.fileInput.click());
-        this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e.target.files));
+        this.fileInput.addEventListener('change', (e) => this.enqueueFiles(e.target.files));
         this.addUrl.addEventListener('click', () => this.handleUrlAdd());
-        this.urlInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') this.handleUrlAdd();
-        });
+        this.urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.handleUrlAdd(); });
+        this.uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); this.uploadArea.classList.add('dragover'); });
+        this.uploadArea.addEventListener('dragleave', (e) => { if (!this.uploadArea.contains(e.relatedTarget)) this.uploadArea.classList.remove('dragover'); });
+        this.uploadArea.addEventListener('drop', (e) => { e.preventDefault(); this.uploadArea.classList.remove('dragover'); this.enqueueFiles(e.dataTransfer.files); });
 
-        // Drag and drop
-        this.uploadArea.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          this.uploadArea.classList.add('dragover');
-        });
-        
-        this.uploadArea.addEventListener('dragleave', (e) => {
-          if (!this.uploadArea.contains(e.relatedTarget)) {
-            this.uploadArea.classList.remove('dragover');
-          }
-        });
-        
-        this.uploadArea.addEventListener('drop', (e) => {
-          e.preventDefault();
-          this.uploadArea.classList.remove('dragover');
-          this.handleFileSelect(e.dataTransfer.files);
-        });
+        // Filters
+        this.filterChips.forEach(chip => chip.addEventListener('click', () => this.setFilter(chip.dataset.filter)));
 
-        // Filter chips
-        this.filterChips.forEach(chip => {
-          chip.addEventListener('click', () => this.setFilter(chip.dataset.filter));
-        });
-
-        // Media grid
-        this.mediaGrid.addEventListener('click', (e) => {
-          const card = e.target.closest('.media-card');
-          if (card) {
-            const index = parseInt(card.dataset.index);
-            this.openMedia(index);
-          }
-        });
+        // Grid
+        this.mediaGrid.addEventListener('click', (e) => { const card = e.target.closest('.media-card'); if (card) this.openMedia(parseInt(card.dataset.index)); });
 
         // Player controls
-        this.closePlayer.addEventListener('click', () => this.closePlayer());
+        this.closePlayerBtn.addEventListener('click', () => this.closePlayerOverlay());
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.rewindBtn.addEventListener('click', () => this.seek(-10));
         this.forwardBtn.addEventListener('click', () => this.seek(10));
+        this.prevBtn.addEventListener('click', () => this.openAdjacent(-1));
+        this.nextBtn.addEventListener('click', () => this.openAdjacent(1));
         this.muteBtn.addEventListener('click', () => this.toggleMute());
         this.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
         this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
-
-        // Progress bar
-        this.progressContainer.addEventListener('mousedown', (e) => this.startSeeking(e));
-        this.progressContainer.addEventListener('touchstart', (e) => this.startSeeking(e));
+        this.playerProgressContainer.addEventListener('mousedown', (e) => this.startSeeking(e));
+        this.playerProgressContainer.addEventListener('touchstart', (e) => this.startSeeking(e));
         document.addEventListener('mousemove', (e) => this.updateSeek(e));
-        document.addEventListener('touchmove', (e) => this.updateSeek(e));
+        document.addEventListener('touchmove', (e) => this.updateSeek(e), { passive: false });
         document.addEventListener('mouseup', () => this.endSeeking());
         document.addEventListener('touchend', () => this.endSeeking());
-
-        // Media events
         this.videoPlayer.addEventListener('loadedmetadata', () => this.onMediaLoaded());
         this.audioPlayer.addEventListener('loadedmetadata', () => this.onMediaLoaded());
-        this.videoPlayer.addEventListener('timeupdate', () => this.updateProgress());
-        this.audioPlayer.addEventListener('timeupdate', () => this.updateProgress());
+        this.videoPlayer.addEventListener('timeupdate', () => this.updatePlayerProgress());
+        this.audioPlayer.addEventListener('timeupdate', () => this.updatePlayerProgress());
         this.videoPlayer.addEventListener('ended', () => this.onMediaEnded());
         this.audioPlayer.addEventListener('ended', () => this.onMediaEnded());
+        this.speedSelect.addEventListener('change', () => this.applySpeed());
+        this.loopToggle.addEventListener('click', () => this.toggleLoop());
+        this.pipBtn.addEventListener('click', () => this.togglePiP());
 
-        // Keyboard shortcuts
+        // Player dblclick: fullscreen; click on video toggles play
+        this.playerOverlay.addEventListener('dblclick', (e) => { if (!this.playerControls.classList.contains('hidden')) this.toggleFullscreen(); });
+        this.playerOverlay.addEventListener('click', (e) => { const isControl = e.target.closest?.('.player-controls'); if (!isControl && (this.videoPlayer || this.audioPlayer)) this.togglePlayPause(); });
+
+        // Keyboard
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
 
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => this.cleanup());
+        // Liquid glass shine follow
+        document.querySelectorAll('.liquidGlass-wrapper').forEach(el => {
+          el.addEventListener('pointermove', (ev) => {
+            const rect = el.getBoundingClientRect();
+            const mx = ((ev.clientX - rect.left) / rect.width) * 100 + '%';
+            const my = ((ev.clientY - rect.top) / rect.height) * 100 + '%';
+            el.style.setProperty('--mx', mx);
+            el.style.setProperty('--my', my);
+          });
+        });
       }
 
       initAnimations() {
-        // Hero animations
-        gsap.timeline({ delay: 0.5 })
-          .from('.hero-badge', { y: 30, opacity: 0, duration: 0.8, ease: 'power2.out' })
-          .from('.hero h1', { y: 50, opacity: 0, duration: 1, ease: 'power2.out' }, '-=0.6')
-          .from('.hero p', { y: 30, opacity: 0, duration: 0.8, ease: 'power2.out' }, '-=0.4')
-          .from('.hero-actions .btn', { y: 20, opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.1 }, '-=0.2');
-
-        // Feature cards animation
-        gsap.timeline({ 
-          scrollTrigger: {
-            trigger: '.features',
-            start: 'top 80%',
-            end: 'bottom 20%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-        .from('.feature-card', { 
-          y: 60, 
-          opacity: 0, 
-          duration: 0.8, 
-          ease: 'power2.out', 
-          stagger: 0.2 
-        });
-
-        // Navigation scroll effect
-        gsap.to('.nav', {
-          scrollTrigger: {
-            trigger: 'body',
-            start: 'top -80',
-            end: 'bottom bottom',
-            toggleClass: { targets: '.nav', className: 'scrolled' },
-            onUpdate: self => {
-              if (self.progress > 0.1) {
-                gsap.to('.nav', { backgroundColor: 'rgba(10, 11, 15, 0.95)', duration: 0.3 });
-              } else {
-                gsap.to('.nav', { backgroundColor: 'rgba(10, 11, 15, 0.8)', duration: 0.3 });
-              }
-            }
-          }
-        });
+        // Hero
+        gsap.timeline({ delay: 0.2 })
+          .from('.hero-badge', { y: 30, opacity: 0, duration: 0.6, ease: 'power2.out' })
+          .from('.hero h1', { y: 42, opacity: 0, duration: 0.8, ease: 'power2.out' }, '-=0.4')
+          .from('.hero p', { y: 24, opacity: 0, duration: 0.6, ease: 'power2.out' }, '-=0.4')
+          .from('.hero-actions .btn', { y: 16, opacity: 0, duration: 0.5, ease: 'power2.out', stagger: 0.08 }, '-=0.3');
       }
 
       showPage(pageId) {
-        // Update navigation
-        this.navLinks.forEach(link => {
-          link.classList.toggle('active', link.dataset.page === pageId);
-        });
-
-        // Hide current page
-        const currentPage = document.querySelector('.page.active');
-        if (currentPage) {
-          gsap.to(currentPage, {
-            opacity: 0,
-            y: -20,
-            duration: 0.3,
-            ease: 'power2.in',
-            onComplete: () => {
-              currentPage.classList.remove('active');
-              this.showNewPage(pageId);
-            }
-          });
+        this.navLinks.forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
+        const current = document.querySelector('.page.active');
+        const next = document.getElementById(pageId);
+        if (current === next) return;
+        if (current) {
+          gsap.to(current, { opacity: 0, y: -16, duration: 0.25, ease: 'power2.in', onComplete: () => { current.classList.remove('active'); this.revealPage(next, pageId); } });
         } else {
-          this.showNewPage(pageId);
+          this.revealPage(next, pageId);
         }
       }
 
-      showNewPage(pageId) {
-        const newPage = document.getElementById(pageId);
-        newPage.classList.add('active');
-        
-        gsap.fromTo(newPage, 
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        );
-
-        // Animate page-specific content
-        if (pageId === 'library') {
-          this.animateLibraryPage();
-        } else if (pageId === 'upload') {
-          this.animateUploadPage();
-        }
+      revealPage(page, pageId) {
+        page.classList.add('active');
+        gsap.fromTo(page, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+        if (pageId === 'upload') this.animateUploadPage();
+        if (pageId === 'library') this.animateLibraryPage();
       }
 
-      animateLibraryPage() {
-        gsap.timeline()
-          .from('.library-header', { y: 30, opacity: 0, duration: 0.6, ease: 'power2.out' })
-          .from('.filter-chip', { scale: 0, opacity: 0, duration: 0.4, ease: 'back.out', stagger: 0.05 }, '-=0.3')
-          .from('.media-card', { y: 40, opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08 }, '-=0.2');
+      animateLibraryPage() { gsap.from('.library-header', { y: 20, opacity: 0, duration: 0.4, ease: 'power2.out' }); gsap.from('.filter-chip', { scale: 0.9, opacity: 0, duration: 0.3, ease: 'back.out', stagger: 0.05, delay: 0.1 }); gsap.from('.media-card', { y: 30, opacity: 0, duration: 0.4, ease: 'power2.out', stagger: 0.05, delay: 0.1 }); }
+      animateUploadPage() { const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; gsap.from('.upload-area', { scale: 0.96, opacity: 0, duration: 0.5, ease: 'power2.out' }); if (!prefersReduced) gsap.to('.upload-area', { y: -4, duration: 2, ease: 'power2.inOut', yoyo: true, repeat: -1 }); }
+
+      // Queue + Upload
+      enqueueFiles(files) {
+        if (!files || !files.length) return;
+        const maxSize = 100 * 1024 * 1024;
+        const allowedTypes = ['video/', 'audio/', 'image/', 'application/pdf', 'text/', 'application/msword', 'application/vnd.openxmlformats-officedocument'];
+        const items = Array.from(files).map(file => { const tooLarge = file.size > maxSize; const isValidType = allowedTypes.some(t => file.type.startsWith(t)) || this.isValidFileExtension(file.name); return { id: this.generateId(), file, name: file.name, size: file.size, type: file.type, valid: !tooLarge && isValidType, progress: 0 }; });
+        items.forEach(item => { if (!item.valid) this.showToast(`Skipping unsupported or large file: ${item.name}`, 'error'); else this.queue.push(item); });
+        this.renderQueue();
+        this.processQueue();
       }
 
-      animateUploadPage() {
-        gsap.timeline()
-          .from('.library-header', { y: 30, opacity: 0, duration: 0.6, ease: 'power2.out' })
-          .from('.upload-area', { scale: 0.9, opacity: 0, duration: 0.8, ease: 'back.out' }, '-=0.3');
-      }
-
-      // Media handling
-      handleFileSelect(files) {
-        if (!files || files.length === 0) return;
-
-        const fileArray = Array.from(files);
-        let processedCount = 0;
-
-        fileArray.forEach(file => {
-          const mediaItem = {
-            id: this.generateId(),
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            kind: this.getMediaKind(file.type, file.name),
-            url: URL.createObjectURL(file),
-            file: file,
-            dateAdded: new Date(),
-            duration: 0,
-            dimensions: { width: 0, height: 0 },
-            thumbnail: null
-          };
-
-          this.mediaLibrary.push(mediaItem);
-          
-          // Generate thumbnail for videos and images
-          if (mediaItem.kind === 'video' || mediaItem.kind === 'image') {
-            this.generateThumbnail(mediaItem).then(() => {
-              processedCount++;
-              if (processedCount === fileArray.length) {
-                this.renderLibrary();
-                this.showToast(`${fileArray.length} file(s) added successfully`);
-                this.showPage('library');
-              }
-            });
-          } else {
-            processedCount++;
-            if (processedCount === fileArray.length) {
-              this.renderLibrary();
-              this.showToast(`${fileArray.length} file(s) added successfully`);
-              this.showPage('library');
-            }
-          }
+      renderQueue() {
+        this.uploadQueue.innerHTML = '';
+        if (!this.queue.length) return;
+        this.queue.forEach(q => {
+          const el = document.createElement('div');
+          el.className = 'queue-item';
+          el.dataset.id = q.id;
+          el.innerHTML = `
+            <div class="queue-thumb">${this.getQueueIcon(q)}</div>
+            <div class="queue-info">
+              <div class="queue-name" title="${q.name}">${q.name}</div>
+              <div class="queue-meta">${this.formatFileSize(q.size)} • ${q.type || 'Unknown'}</div>
+              <div class="queue-progress-wrap"><div class="queue-progress" style="width:${q.progress}%"></div></div>
+            </div>
+            <div class="queue-actions">
+              <button class="queue-remove" title="Remove" data-remove="${q.id}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>`;
+          this.uploadQueue.appendChild(el);
         });
+        this.uploadQueue.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => this.removeFromQueue(btn.dataset.remove)));
       }
 
-      handleUrlAdd() {
-        const url = this.urlInput.value.trim();
-        if (!url) return;
+      removeFromQueue(id) { const idx = this.queue.findIndex(i => i.id === id); if (idx !== -1) { this.queue.splice(idx, 1); this.renderQueue(); } }
 
-        let processedUrl = url;
-        let isEmbed = false;
-
-        // Handle YouTube URLs
-        if (url.includes('youtube.com') || url.includes('youtu.be')) {
-          const videoId = this.extractYouTubeId(url);
-          if (videoId) {
-            processedUrl = `https://www.youtube.com/embed/${videoId}`;
-            isEmbed = true;
-          }
+      async processQueue() {
+        if (!this.queue.length) return;
+        this.showUploadProgress();
+        let processed = 0; let errors = 0;
+        for (const item of this.queue) {
+          try { await this.handleSingleFile(item, (p) => this.updateQueueProgress(item.id, p)); processed++; } catch (e) { console.error(e); errors++; this.showToast(`Failed to add ${item.name}`, 'error'); }
+          this.updateUploadProgress(((processed + errors) / this.queue.length) * 100);
         }
-
-        const mediaItem = {
-          id: this.generateId(),
-          name: this.extractNameFromUrl(url),
-          size: 0,
-          type: isEmbed ? 'video/youtube' : '',
-          kind: isEmbed ? 'video' : this.getMediaKind('', url),
-          url: processedUrl,
-          originalUrl: url,
-          isEmbed: isEmbed,
-          dateAdded: new Date(),
-          duration: 0,
-          dimensions: { width: 0, height: 0 },
-          thumbnail: null
-        };
-
-        this.mediaLibrary.push(mediaItem);
+        this.queue = [];
+        this.renderQueue();
+        this.hideUploadProgress();
         this.renderLibrary();
-        this.showToast('URL added successfully');
-        this.urlInput.value = '';
+        if (processed) this.showToast(`${processed} file(s) added`, 'success');
+        if (errors) this.showToast(`${errors} file(s) failed`, 'error');
         this.showPage('library');
       }
 
+      updateQueueProgress(id, p) { const row = this.uploadQueue.querySelector(`[data-id="${id}"] .queue-progress`); if (row) row.style.width = `${p}%`; }
+
+      handleSingleFile(item, onProgress) {
+        return new Promise((resolve) => {
+          const file = item.file; const reader = new FileReader();
+          reader.onprogress = (e) => { if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100)); };
+          reader.onload = async () => {
+            const url = URL.createObjectURL(file);
+            const mediaItem = { id: this.generateId(), name: file.name, size: file.size, type: file.type, kind: this.getMediaKind(file.type, file.name), url, file, dateAdded: new Date(), duration: 0, dimensions: { width: 0, height: 0 }, thumbnail: null };
+            this.mediaLibrary.push(mediaItem);
+            if (mediaItem.kind === 'video' || mediaItem.kind === 'image') await this.generateThumbnail(mediaItem);
+            resolve();
+          };
+          reader.onerror = () => resolve();
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      showUploadProgress() { this.uploadProgress.style.display = 'block'; gsap.fromTo(this.uploadProgress, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }); }
+      updateUploadProgress(p) { gsap.to(this.uploadProgressBar, { width: `${p}%`, duration: 0.25, ease: 'power2.out' }); this.uploadProgressStatus.textContent = `${Math.round(p)}%`; }
+      hideUploadProgress() { gsap.to(this.uploadProgress, { opacity: 0, y: -10, duration: 0.25, ease: 'power2.in', onComplete: () => { this.uploadProgress.style.display = 'none'; } }); }
+
+      // URL + persistence
+      handleUrlAdd() {
+        const url = this.urlInput.value.trim(); if (!url) { this.showToast('Please enter a valid URL', 'error'); return; }
+        try {
+          const urlObj = new URL(url); if (!['http:', 'https:'].includes(urlObj.protocol)) { this.showToast('Only HTTP/HTTPS URLs are supported', 'error'); return; }
+          let processedUrl = url; let isEmbed = false;
+          if (url.includes('youtube.com') || url.includes('youtu.be')) { const id = this.extractYouTubeId(url); if (id) { processedUrl = `https://www.youtube.com/embed/${id}`; isEmbed = true; } else { this.showToast('Invalid YouTube URL', 'error'); return; } }
+          if (url.includes('vimeo.com')) { const id = this.extractVimeoId(url); if (id) { processedUrl = `https://player.vimeo.com/video/${id}`; isEmbed = true; } else { this.showToast('Invalid Vimeo URL', 'error'); return; } }
+          const mediaItem = { id: this.generateId(), name: this.extractNameFromUrl(url), size: 0, type: isEmbed ? 'video/embed' : '', kind: isEmbed ? 'video' : this.getMediaKind('', url), url: processedUrl, originalUrl: url, isEmbed, dateAdded: new Date(), duration: 0, dimensions: { width: 0, height: 0 }, thumbnail: null };
+          this.mediaLibrary.push(mediaItem); this.persist(); this.renderLibrary(); this.showToast('URL added successfully', 'success'); this.urlInput.value = ''; this.showPage('library');
+        } catch (e) { console.error(e); this.showToast('Invalid URL format', 'error'); }
+      }
+      extractVimeoId(url) { const m = url.match(/vimeo\.com\/(\d+)/); return m ? m[1] : null; }
+      extractYouTubeId(url) { const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/); return (m && m[2].length === 11) ? m[2] : null; }
+      extractNameFromUrl(url) { try { const u = new URL(url); const f = u.pathname.split('/').pop(); return f || u.hostname || 'External Media'; } catch { return 'External Media'; } }
+
       async generateThumbnail(mediaItem) {
         try {
-          if (mediaItem.kind === 'image') {
-            mediaItem.thumbnail = mediaItem.url;
-            return;
-          }
-
+          if (mediaItem.kind === 'image') { mediaItem.thumbnail = mediaItem.url; return; }
           if (mediaItem.kind === 'video') {
-            const video = document.createElement('video');
-            video.muted = true;
-            video.crossOrigin = 'anonymous';
-            
-            return new Promise((resolve) => {
-              video.onloadedmetadata = () => {
-                mediaItem.duration = video.duration;
-                mediaItem.dimensions = {
-                  width: video.videoWidth,
-                  height: video.videoHeight
-                };
-
-                video.currentTime = Math.min(1, video.duration * 0.1);
-              };
-
-              video.onseeked = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = 320;
-                canvas.height = Math.round((video.videoHeight / video.videoWidth) * 320) || 180;
-                
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                mediaItem.thumbnail = canvas.toDataURL('image/jpeg', 0.8);
-                
-                video.remove();
-                resolve();
-              };
-
-              video.onerror = () => {
-                video.remove();
-                resolve();
-              };
-
+            const video = document.createElement('video'); video.muted = true; video.crossOrigin = 'anonymous';
+            await new Promise((resolve) => {
+              video.onloadedmetadata = () => { mediaItem.duration = video.duration; mediaItem.dimensions = { width: video.videoWidth, height: video.videoHeight }; video.currentTime = Math.min(1, video.duration * 0.1); };
+              video.onseeked = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = 320; canvas.height = Math.round((video.videoHeight / video.videoWidth) * 320) || 180; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); mediaItem.thumbnail = canvas.toDataURL('image/jpeg', 0.8); video.remove(); resolve(); };
+              video.onerror = () => { video.remove(); resolve(); };
               video.src = mediaItem.url;
             });
           }
-        } catch (error) {
-          console.warn('Thumbnail generation failed:', error);
-        }
+        } catch {}
       }
 
-      getMediaKind(type, filename = '') {
-        if (type.startsWith('video/')) return 'video';
-        if (type.startsWith('audio/')) return 'audio';
-        if (type.startsWith('image/')) return 'image';
-        if (type.includes('pdf') || type.startsWith('text/') || type.includes('document') || type.includes('sheet')) return 'document';
+      // Library rendering
+      setFilter(filter) { this.currentFilter = filter; this.filterChips.forEach(chip => chip.classList.toggle('active', chip.dataset.filter === filter)); this.renderLibrary(); }
+      renderLibrary() { this.filteredMedia = this.currentFilter === 'all' ? this.mediaLibrary : this.mediaLibrary.filter(i => i.kind === this.currentFilter); this.mediaGrid.innerHTML = ''; if (!this.filteredMedia.length) { this.mediaGrid.innerHTML = this.getEmptyState(); return; } this.filteredMedia.forEach((item, index) => this.mediaGrid.appendChild(this.createMediaCard(item, index))); gsap.fromTo('.media-card', { y: 30, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out', stagger: 0.05 }); }
+      createMediaCard(item, index) { const card = document.createElement('div'); card.className = 'media-card'; card.dataset.index = index; const thumb = item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.name}" loading="lazy">` : this.getDefaultThumbnail(item.kind); const badge = item.duration ? `<div class="media-badge">${this.formatTime(item.duration)}</div>` : ''; card.innerHTML = `<div class="media-thumbnail">${thumb}<div class="thumbnail-overlay"></div>${badge}</div><div class="media-info"><div class="media-title" title="${item.name}">${item.name}</div><div class="media-meta"><span>${item.kind.toUpperCase()}</span><span>•</span><span>${this.formatFileSize(item.size)}</span>${item.dimensions?.width ? `<span>•</span><span>${item.dimensions.width}×${item.dimensions.height}</span>` : ''}</div><div class="media-description">Added ${this.formatDate(item.dateAdded)}</div></div>`; return card; }
+      getDefaultThumbnail(kind) { const icons = { video: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`, audio: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`, image: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`, document: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`, other: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/></svg>` }; return `<div style="display:flex;align-items:center;justify-content:center;color:var(--text-secondary);width:100%;height:100%">${icons[kind] || icons.other}</div>`; }
+      getEmptyState() { return `<div style="grid-column:1 / -1; text-align:center; padding: 60px 20px;"><div style="width: 80px; height: 80px; background: var(--glass); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div><h3 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">No media found</h3><p style="color: var(--text-secondary); margin-bottom: 24px;">Upload some files to get started</p><button class="btn btn-primary" onclick="document.querySelector('[data-page=upload]').click()">Upload Files</button></div>`; }
 
-        const ext = filename.split('.').pop()?.toLowerCase() || '';
-        if (['mp4', 'avi', 'mkv', 'mov', 'webm'].includes(ext)) return 'video';
-        if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) return 'audio';
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
-        if (['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(ext)) return 'document';
-        
-        return 'other';
-      }
-
-      extractYouTubeId(url) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
-      }
-
-      extractNameFromUrl(url) {
-        try {
-          const urlObj = new URL(url);
-          const pathname = urlObj.pathname;
-          const filename = pathname.split('/').pop();
-          return filename || urlObj.hostname || 'External Media';
-        } catch {
-          return 'External Media';
-        }
-      }
-
-      generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-      }
-
-      setFilter(filter) {
-        this.currentFilter = filter;
-        
-        // Update filter chips
-        this.filterChips.forEach(chip => {
-          chip.classList.toggle('active', chip.dataset.filter === filter);
-        });
-
-        this.renderLibrary();
-      }
-
-      renderLibrary() {
-        // Filter media
-        this.filteredMedia = this.currentFilter === 'all' 
-          ? this.mediaLibrary 
-          : this.mediaLibrary.filter(item => item.kind === this.currentFilter);
-
-        // Clear grid
-        this.mediaGrid.innerHTML = '';
-
-        if (this.filteredMedia.length === 0) {
-          this.mediaGrid.innerHTML = this.getEmptyState();
-          return;
-        }
-
-        // Create cards
-        this.filteredMedia.forEach((item, index) => {
-          const card = this.createMediaCard(item, index);
-          this.mediaGrid.appendChild(card);
-        });
-
-        // Animate cards
-        gsap.fromTo('.media-card', 
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', stagger: 0.05 }
-        );
-      }
-
-      createMediaCard(item, index) {
-        const card = document.createElement('div');
-        card.className = 'media-card';
-        card.dataset.index = index;
-
-        const thumbnail = item.thumbnail 
-          ? `<img src="${item.thumbnail}" alt="${item.name}" loading="lazy">`
-          : this.getDefaultThumbnail(item.kind);
-
-        const badge = item.duration 
-          ? `<div class="media-badge">${this.formatTime(item.duration)}</div>`
-          : '';
-
-        card.innerHTML = `
-          <div class="media-thumbnail">
-            ${thumbnail}
-            <div class="thumbnail-overlay"></div>
-            ${badge}
-          </div>
-          <div class="media-info">
-            <div class="media-title" title="${item.name}">${item.name}</div>
-            <div class="media-meta">
-              <span>${item.kind.toUpperCase()}</span>
-              <span>•</span>
-              <span>${this.formatFileSize(item.size)}</span>
-              ${item.dimensions.width ? `<span>•</span><span>${item.dimensions.width}×${item.dimensions.height}</span>` : ''}
-            </div>
-            <div class="media-description">Added ${this.formatDate(item.dateAdded)}</div>
-          </div>
-        `;
-
-        return card;
-      }
-
-      getDefaultThumbnail(kind) {
-        const icons = {
-          video: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <polygon points="23 7 16 12 23 17 23 7"/>
-                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                  </svg>`,
-          audio: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 18V5l12-2v13"/>
-                    <circle cx="6" cy="18" r="3"/>
-                    <circle cx="18" cy="16" r="3"/>
-                  </svg>`,
-          image: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <circle cx="9" cy="9" r="2"/>
-                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                  </svg>`,
-          document: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                       <polyline points="14,2 14,8 20,8"/>
-                       <line x1="16" y1="13" x2="8" y2="13"/>
-                       <line x1="16" y1="17" x2="8" y2="17"/>
-                     </svg>`,
-          other: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                    <polyline points="14,2 14,8 20,8"/>
-                  </svg>`
-        };
-
-        return `<div style="display: flex; align-items: center; justify-content: center; color: var(--text-secondary); width: 100%; height: 100%;">
-                  ${icons[kind] || icons.other}
-                </div>`;
-      }
-
-      getEmptyState() {
-        return `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-            <div style="width: 80px; height: 80px; background: var(--glass); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="9" cy="9" r="2"/>
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-              </svg>
-            </div>
-            <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">No media found</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">Upload some files to get started</p>
-            <button class="btn btn-primary" onclick="document.querySelector('[data-page=upload]').click()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17,8 12,3 7,8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              Upload Files
-            </button>
-          </div>
-        `;
-      }
-
+      // Player
       openMedia(index) {
-        this.currentMediaIndex = index;
-        const item = this.filteredMedia[index];
-        if (!item) return;
-
-        this.currentMedia = item;
-        
-        // Update info panel
-        this.infoTitle.textContent = item.name;
-        this.infoMeta.textContent = `${item.kind.toUpperCase()} • ${item.type || 'Unknown'} • ${this.formatFileSize(item.size)}`;
-        this.infoDescription.textContent = `Added ${this.formatDate(item.dateAdded)}`;
-
-        // Hide all media elements
-        [this.videoPlayer, this.audioPlayer, this.imageViewer, this.documentViewer, this.embedViewer]
-          .forEach(el => el.classList.add('hidden'));
-
-        // Show appropriate element
-        if (item.isEmbed) {
-          this.embedViewer.src = item.url;
-          this.embedViewer.classList.remove('hidden');
-          this.playerControls.classList.add('hidden');
-        } else if (item.kind === 'video') {
-          this.videoPlayer.src = item.url;
-          this.videoPlayer.classList.remove('hidden');
-          this.playerControls.classList.remove('hidden');
-          this.currentMedia = this.videoPlayer;
-        } else if (item.kind === 'audio') {
-          this.audioPlayer.src = item.url;
-          this.audioPlayer.classList.remove('hidden');
-          this.playerControls.classList.remove('hidden');
-          this.currentMedia = this.audioPlayer;
-        } else if (item.kind === 'image') {
-          this.imageViewer.src = item.url;
-          this.imageViewer.classList.remove('hidden');
-          this.playerControls.classList.add('hidden');
-        } else {
-          this.documentViewer.src = item.url;
-          this.documentViewer.classList.remove('hidden');
-          this.playerControls.classList.add('hidden');
-        }
-
-        // Show player overlay
-        this.playerOverlay.classList.add('active');
-        gsap.fromTo(this.playerOverlay, 
-          { opacity: 0 },
-          { opacity: 1, duration: 0.3, ease: 'power2.out' }
-        );
+        this.currentMediaIndex = index; const item = this.filteredMedia[index]; if (!item) return;
+        this.infoTitle.textContent = item.name; this.infoMeta.textContent = `${item.kind.toUpperCase()} • ${item.type || 'Unknown'} • ${this.formatFileSize(item.size)}`; this.infoDescription.textContent = `Added ${this.formatDate(item.dateAdded)}`;
+        [this.videoPlayer, this.audioPlayer, this.imageViewer, this.documentViewer, this.embedViewer].forEach(el => el.classList.add('hidden'));
+        // hide native controls
+        this.videoPlayer.removeAttribute('controls'); this.audioPlayer.removeAttribute('controls');
+        if (item.isEmbed) { this.embedViewer.src = item.url; this.embedViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
+        else if (item.kind === 'video') { this.videoPlayer.src = item.url; this.videoPlayer.classList.remove('hidden'); this.playerControls.classList.remove('hidden'); this.currentMedia = this.videoPlayer; }
+        else if (item.kind === 'audio') { this.audioPlayer.src = item.url; this.audioPlayer.classList.remove('hidden'); this.playerControls.classList.remove('hidden'); this.currentMedia = this.audioPlayer; }
+        else if (item.kind === 'image') { this.imageViewer.src = item.url; this.imageViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
+        else { this.documentViewer.src = item.url; this.documentViewer.classList.remove('hidden'); this.playerControls.classList.add('hidden'); this.currentMedia = null; }
+        this.playerOverlay.classList.add('active'); gsap.fromTo(this.playerOverlay, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' }); this.applySpeed(); this.applyLoopState();
       }
+      openAdjacent(delta) { if (this.currentMediaIndex === -1) return; let next = this.currentMediaIndex + delta; if (next < 0) next = this.filteredMedia.length - 1; if (next >= this.filteredMedia.length) next = 0; this.openMedia(next); }
+      closePlayerOverlay() { gsap.to(this.playerOverlay, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => { this.playerOverlay.classList.remove('active'); this.stopCurrentMedia(); } }); }
+      stopCurrentMedia() { if (this.videoPlayer.src) { this.videoPlayer.pause(); this.videoPlayer.src=''; } if (this.audioPlayer.src) { this.audioPlayer.pause(); this.audioPlayer.src=''; } if (this.embedViewer.src) { this.embedViewer.src=''; } this.currentMedia = null; }
+      togglePlayPause() { if (!this.currentMedia || this.currentMedia.tagName === 'IMG') return; if (this.currentMedia.paused) this.currentMedia.play(); else this.currentMedia.pause(); this.updatePlayIcon(); }
+      updatePlayIcon() { if (!this.currentMedia) return; const playing = !this.currentMedia.paused; this.playIcon.innerHTML = playing ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>' : '<polygon points="5 3 19 12 5 21 5 3" fill="white"/>'; }
+      seek(sec) { if (!this.currentMedia || !this.currentMedia.duration) return; this.currentMedia.currentTime = Math.max(0, Math.min(this.currentMedia.duration, this.currentMedia.currentTime + sec)); }
+      toggleMute() { if (!this.currentMedia) return; this.currentMedia.muted = !this.currentMedia.muted; this.updateVolumeIcon(); this.volumeSlider.value = this.currentMedia.muted ? 0 : this.currentMedia.volume * 100; }
+      setVolume(v) { if (!this.currentMedia) return; this.currentMedia.volume = v; this.currentMedia.muted = v === 0; this.updateVolumeIcon(); }
+      updateVolumeIcon() { if (!this.currentMedia) return; const v = this.currentMedia.muted ? 0 : this.currentMedia.volume; if (v === 0) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`; } else if (v < 0.5) { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } else { this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`; } }
+      toggleFullscreen() { if (!document.fullscreenElement) this.playerOverlay.requestFullscreen?.(); else document.exitFullscreen?.(); }
+      startSeeking(e) { if (!this.currentMedia || !this.currentMedia.duration) return; this.isDragging = true; this.updateSeek(e); }
+      updateSeek(e) { if (!this.isDragging || !this.currentMedia || !this.currentMedia.duration) return; const rect = this.playerProgressContainer.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)); this.currentMedia.currentTime = p * this.currentMedia.duration; this.updatePlayerProgress(); }
+      endSeeking() { this.isDragging = false; }
+      updatePlayerProgress() { if (!this.currentMedia || !this.currentMedia.duration) return; const p = this.currentMedia.currentTime / this.currentMedia.duration; this.playerProgressBar.style.width = `${p * 100}%`; this.timeDisplay.textContent = `${this.formatTime(this.currentMedia.currentTime)} / ${this.formatTime(this.currentMedia.duration)}`; }
+      onMediaLoaded() { this.updatePlayerProgress(); this.updatePlayIcon(); this.updateVolumeIcon(); this.applySpeed(); this.applyLoopState(); }
+      onMediaEnded() { this.updatePlayIcon(); if (this.loopToggle.classList.contains('active')) { this.currentMedia?.play?.(); } else { this.openAdjacent(1); } }
+      applySpeed() { const rate = parseFloat(this.speedSelect.value || '1'); if (this.videoPlayer) this.videoPlayer.playbackRate = rate; if (this.audioPlayer) this.audioPlayer.playbackRate = rate; }
+      toggleLoop() { this.loopToggle.classList.toggle('active'); this.applyLoopState(); }
+      applyLoopState() { const looping = this.loopToggle.classList.contains('active'); if (this.videoPlayer) this.videoPlayer.loop = looping; if (this.audioPlayer) this.audioPlayer.loop = looping; }
+      async togglePiP() { try { if (document.pictureInPictureElement) { await document.exitPictureInPicture(); this.pipBtn.classList.remove('active'); } else if (this.videoPlayer && !this.videoPlayer.classList.contains('hidden')) { await this.videoPlayer.requestPictureInPicture(); this.pipBtn.classList.add('active'); } } catch (e) { this.showToast('PiP not available', 'warning'); }}
 
-      closePlayer() {
-        gsap.to(this.playerOverlay, {
-          opacity: 0,
-          duration: 0.3,
-          ease: 'power2.in',
-          onComplete: () => {
-            this.playerOverlay.classList.remove('active');
-            this.stopCurrentMedia();
-          }
-        });
-      }
-
-      stopCurrentMedia() {
-        if (this.videoPlayer.src) {
-          this.videoPlayer.pause();
-          this.videoPlayer.src = '';
-        }
-        if (this.audioPlayer.src) {
-          this.audioPlayer.pause();
-          this.audioPlayer.src = '';
-        }
-        if (this.embedViewer.src) {
-          this.embedViewer.src = '';
-        }
-        this.currentMedia = null;
-      }
-
-      // Media controls
-      togglePlayPause() {
-        if (!this.currentMedia || this.currentMedia.tagName === 'IMG') return;
-
-        if (this.currentMedia.paused) {
-          this.currentMedia.play();
-        } else {
-          this.currentMedia.pause();
-        }
-        this.updatePlayIcon();
-      }
-
-      updatePlayIcon() {
-        if (!this.currentMedia) return;
-        
-        const isPlaying = !this.currentMedia.paused;
-        this.playIcon.innerHTML = isPlaying
-          ? '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>'
-          : '<polygon points="5 3 19 12 5 21 5 3" fill="white"/>';
-      }
-
-      seek(seconds) {
-        if (!this.currentMedia || !this.currentMedia.duration) return;
-        this.currentMedia.currentTime = Math.max(0, Math.min(this.currentMedia.duration, this.currentMedia.currentTime + seconds));
-      }
-
-      toggleMute() {
-        if (!this.currentMedia) return;
-        
-        this.currentMedia.muted = !this.currentMedia.muted;
-        this.updateVolumeIcon();
-        this.volumeSlider.value = this.currentMedia.muted ? 0 : this.currentMedia.volume * 100;
-      }
-
-      setVolume(volume) {
-        if (!this.currentMedia) return;
-        
-        this.currentMedia.volume = volume;
-        this.currentMedia.muted = volume === 0;
-        this.updateVolumeIcon();
-      }
-
-      updateVolumeIcon() {
-        if (!this.currentMedia) return;
-        
-        const volume = this.currentMedia.muted ? 0 : this.currentMedia.volume;
-        
-        if (volume === 0) {
-          this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                                       <line x1="23" y1="9" x2="17" y2="15"/>
-                                       <line x1="17" y1="9" x2="23" y2="15"/>`;
-        } else if (volume < 0.5) {
-          this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                                       <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`;
-        } else {
-          this.volumeIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                                       <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>`;
-        }
-      }
-
-      toggleFullscreen() {
-        if (!document.fullscreenElement) {
-          this.playerOverlay.requestFullscreen?.();
-        } else {
-          document.exitFullscreen?.();
-        }
-      }
-
-      // Progress handling
-      startSeeking(e) {
-        if (!this.currentMedia || !this.currentMedia.duration) return;
-        
-        this.isDragging = true;
-        this.updateSeek(e);
-      }
-
-      updateSeek(e) {
-        if (!this.isDragging || !this.currentMedia || !this.currentMedia.duration) return;
-        
-        const rect = this.progressContainer.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const progress = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-        
-        this.currentMedia.currentTime = progress * this.currentMedia.duration;
-        this.updateProgress();
-      }
-
-      endSeeking() {
-        this.isDragging = false;
-      }
-
-      updateProgress() {
-        if (!this.currentMedia || !this.currentMedia.duration) return;
-        
-        const progress = this.currentMedia.currentTime / this.currentMedia.duration;
-        this.progressBar.style.width = `${progress * 100}%`;
-        
-        const currentTime = this.formatTime(this.currentMedia.currentTime);
-        const totalTime = this.formatTime(this.currentMedia.duration);
-        this.timeDisplay.textContent = `${currentTime} / ${totalTime}`;
-      }
-
-      onMediaLoaded() {
-        this.updateProgress();
-        this.updatePlayIcon();
-        this.updateVolumeIcon();
-      }
-
-      onMediaEnded() {
-        this.updatePlayIcon();
-      }
-
-      // Keyboard shortcuts
+      // Keyboard
       handleKeyboard(e) {
         if (!this.playerOverlay.classList.contains('active')) return;
-        
         switch (e.code) {
-          case 'Space':
-            e.preventDefault();
-            this.togglePlayPause();
-            break;
-          case 'ArrowLeft':
-            e.preventDefault();
-            this.seek(-5);
-            break;
-          case 'ArrowRight':
-            e.preventDefault();
-            this.seek(5);
-            break;
-          case 'KeyM':
-            e.preventDefault();
-            this.toggleMute();
-            break;
-          case 'KeyF':
-            e.preventDefault();
-            this.toggleFullscreen();
-            break;
-          case 'Escape':
-            e.preventDefault();
-            this.closePlayer();
-            break;
+          case 'Space': e.preventDefault(); this.togglePlayPause(); break;
+          case 'ArrowLeft': e.preventDefault(); this.seek(-5); break;
+          case 'ArrowRight': e.preventDefault(); this.seek(5); break;
+          case 'KeyM': e.preventDefault(); this.toggleMute(); break;
+          case 'KeyF': e.preventDefault(); this.toggleFullscreen(); break;
+          case 'KeyL': e.preventDefault(); this.toggleLoop(); break;
+          case 'BracketLeft': e.preventDefault(); this.speedSelect.value = String(Math.max(0.25, (parseFloat(this.speedSelect.value)||1) - 0.25)); this.applySpeed(); break;
+          case 'BracketRight': e.preventDefault(); this.speedSelect.value = String(Math.min(2, (parseFloat(this.speedSelect.value)||1) + 0.25)); this.applySpeed(); break;
+          case 'Escape': e.preventDefault(); this.closePlayerOverlay(); break;
+          case 'KeyP': e.preventDefault(); this.togglePiP(); break;
+          case 'KeyJ': e.preventDefault(); this.openAdjacent(-1); break;
+          case 'KeyK': e.preventDefault(); this.togglePlayPause(); break;
+          case 'KeyN': e.preventDefault(); this.openAdjacent(1); break;
         }
       }
 
-      // Utility functions
-      formatTime(seconds) {
-        if (!isFinite(seconds) || seconds < 0) return '0:00';
-        
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        
-        if (hours > 0) {
-          return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+      // Utils
+      formatTime(seconds) { if (!isFinite(seconds) || seconds < 0) return '0:00'; const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60); const s = Math.floor(seconds % 60); return h > 0 ? `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}` : `${m}:${s.toString().padStart(2,'0')}`; }
+      formatFileSize(bytes) { if (bytes === 0) return '0 Bytes'; const k = 1024; const sizes = ['Bytes','KB','MB','GB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k,i)).toFixed(2)) + ' ' + sizes[i]; }
+      formatDate(date) { const d = typeof date === 'string' ? new Date(date) : date; const days = Math.round((d.getTime() - Date.now()) / (1000*60*60*24)); return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(days, 'day'); }
+      generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+      isValidFileExtension(filename) { const exts = ['mp4','avi','mkv','mov','webm','mp3','wav','flac','aac','ogg','jpg','jpeg','png','gif','webp','svg','pdf','doc','docx','txt','rtf']; const ext = filename.split('.').pop()?.toLowerCase() || ''; return exts.includes(ext); }
+      getMediaKind(type, filename='') { if (type.startsWith?.('video/')) return 'video'; if (type.startsWith?.('audio/')) return 'audio'; if (type.startsWith?.('image/')) return 'image'; if (type.includes?.('pdf') || type.startsWith?.('text/') || type.includes?.('document') || type.includes?.('sheet')) return 'document'; const ext = filename.split('.').pop()?.toLowerCase() || ''; if (['mp4','avi','mkv','mov','webm'].includes(ext)) return 'video'; if (['mp3','wav','flac','aac','ogg'].includes(ext)) return 'audio'; if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return 'image'; if (['pdf','doc','docx','txt','rtf'].includes(ext)) return 'document'; return 'other'; }
+
+      // Persistence (only URLs)
+      persist() { const data = this.mediaLibrary.filter(i => i.originalUrl).map(i => ({ name: i.name, url: i.url, originalUrl: i.originalUrl, isEmbed: i.isEmbed, kind: i.kind, type: i.type, dateAdded: i.dateAdded })); localStorage.setItem('copilot_media_urls', JSON.stringify(data)); }
+      loadPersisted() { try { const raw = localStorage.getItem('copilot_media_urls'); if (!raw) return; JSON.parse(raw).forEach(item => { this.mediaLibrary.push({ id: this.generateId(), name: item.name, size: 0, type: item.type, kind: item.kind, url: item.url, originalUrl: item.originalUrl, isEmbed: item.isEmbed, dateAdded: new Date(item.dateAdded), duration: 0, dimensions: { width:0, height:0 }, thumbnail: null }); }); } catch {}
       }
 
-      formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      showToast(message, type='success') {
+        const toast = document.createElement('div'); toast.className = `toast toast-${type}`;
+        const icons = { success: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>`, error: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`, warning: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`, info: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>` };
+        toast.innerHTML = `<div class="toast-icon">${icons[type] || icons.success}</div><span>${message}</span>`; this.toastContainer.appendChild(toast);
+        gsap.timeline().set(toast, { x: '100%', opacity: 0 }).to(toast, { x: '0%', opacity: 1, duration: 0.25, ease: 'power2.out' }).to(toast, { x: '100%', opacity: 0, duration: 0.25, ease: 'power2.in', delay: 4 }).call(() => toast.remove());
       }
 
-      formatDate(date) {
-        return new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
-          .format(Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24)), 'day');
-      }
-
-      showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `
-          <div class="toast-icon">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <polyline points="20,6 9,17 4,12"/>
-            </svg>
-          </div>
-          <span>${message}</span>
-        `;
-
-        this.toastContainer.appendChild(toast);
-
-        // Animate in
-        gsap.timeline()
-          .set(toast, { x: '100%', opacity: 0 })
-          .to(toast, { x: '0%', opacity: 1, duration: 0.3, ease: 'power2.out' })
-          .to(toast, { x: '100%', opacity: 0, duration: 0.3, ease: 'power2.in', delay: 3 })
-          .call(() => toast.remove());
-      }
-
-      cleanup() {
-        // Revoke object URLs to prevent memory leaks
-        this.mediaLibrary.forEach(item => {
-          if (item.url && item.url.startsWith('blob:')) {
-            URL.revokeObjectURL(item.url);
-          }
-          if (item.thumbnail && item.thumbnail.startsWith('blob:')) {
-            URL.revokeObjectURL(item.thumbnail);
-          }
-        });
-      }
+      cleanup() { this.mediaLibrary.forEach(item => { if (item.url?.startsWith('blob:')) URL.revokeObjectURL(item.url); if (item.thumbnail?.startsWith?.('blob:')) URL.revokeObjectURL(item.thumbnail); }); }
     }
 
-    // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
-      // Load GSAP ScrollTrigger plugin
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js';
-      script.onload = () => {
-        gsap.registerPlugin(ScrollTrigger);
-        new CopilotMedia();
-      };
+      script.onload = () => { gsap.registerPlugin(ScrollTrigger); window.app = new CopilotMedia(); };
       document.head.appendChild(script);
+      window.addEventListener('beforeunload', () => { try { window.app?.cleanup?.(); } catch {} });
     });
   </script>
 </body>
