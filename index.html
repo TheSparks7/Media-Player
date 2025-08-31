@@ -1250,7 +1250,11 @@
           if (e.key === 'Enter') this.handleUrlAdd();
         });
         // Click anywhere in upload area to open file picker
-        this.uploadArea.addEventListener('click', () => this.fileInput.click());
+        this.uploadArea.addEventListener('click', (e) => {
+          // avoid triggering when clicking on interactive controls inside
+          if (e.target.closest('#browseFiles, #addUrl, #urlInput')) return;
+          this.fileInput.click();
+        });
 
         // Drag and drop
         this.uploadArea.addEventListener('dragover', (e) => {
@@ -1428,7 +1432,6 @@
               if (processedCount === fileArray.length) {
                 this.renderLibrary();
                 this.showToast(`${fileArray.length} file(s) added successfully`);
-                this.showPage('library');
               }
             });
           } else {
@@ -1436,7 +1439,6 @@
             if (processedCount === fileArray.length) {
               this.renderLibrary();
               this.showToast(`${fileArray.length} file(s) added successfully`);
-              this.showPage('library');
             }
           }
         });
@@ -1477,7 +1479,6 @@
         this.renderLibrary();
         this.showToast('URL added successfully');
         this.urlInput.value = '';
-        this.showPage('library');
       }
 
       async generateThumbnail(mediaItem) {
