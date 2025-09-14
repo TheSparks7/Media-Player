@@ -232,6 +232,7 @@ input:checked + .slider:before {
 	display: flex;
 	align-items:center;
 	justify-content:center;
+    border-radius: 15px;
 	font-size:large;
 
 }
@@ -423,6 +424,7 @@ body.light-mode .liquidGlass-wrapper {
     z-index: 1;
     position: absolute;
     inset: 0;
+    border-radius: 15px;
     background: var(--glass-tint-dark);
 }
 
