@@ -148,6 +148,12 @@ class AppleTVPlayer {
     }
 
     bindEvents() {
+        // Back button in video player
+        const backBtn = document.getElementById('backBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => this.closePlayer());
+        }
+        
         this.navLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -306,12 +312,50 @@ class AppleTVPlayer {
 
     playVideo(index) {
         if (index < 0 || index >= this.videos.length) return;
-        this.currentVideoIndex = index; // Fix: Set currentVideoIndex
+        this.currentVideoIndex = index;
         const video = this.videos[index];
+        
+        // Update video info elements
+        const title = document.getElementById('playerVideoTitle');
+        const duration = document.getElementById('playerVideoDuration');
+        const resolution = document.getElementById('playerVideoResolution');
+        const size = document.getElementById('playerVideoSize');
+        
+        // Set video name without extension
+        title.textContent = video.name.replace(/\.[^/.]+$/, "");
+        
+        // Reset info while loading
+        duration.textContent = "...";
+        resolution.textContent = "...";
+        size.textContent = "...";
+        
+        // Set video source and show player
         this.mainVideo.src = video.url;
         this.showPage('player');
+        
+        // Set duration and resolution once metadata is loaded
+        this.mainVideo.onloadedmetadata = () => {
+            const mins = Math.floor(this.mainVideo.duration / 60);
+            const secs = Math.floor(this.mainVideo.duration % 60);
+            duration.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            resolution.textContent = `${this.mainVideo.videoWidth}x${this.mainVideo.videoHeight}`;
+            
+            // Calculate and format video size (for file URLs)
+            if (video.url.startsWith('blob:')) {
+                fetch(video.url)
+                    .then(response => {
+                        const sizeInMB = response.headers.get('content-length') / (1024 * 1024);
+                        size.textContent = sizeInMB.toFixed(1) + ' MB';
+                    })
+                    .catch(() => size.textContent = '');
+            } else {
+                // For local files (preloaded videos), we might not have size info
+                size.textContent = '';
+            }
+        };
+        
         this.mainVideo.play().catch(err => {
-            showCustomMessage('Playback Error', `Could not play "${video.name}".\n\n${err.message}`); // Use err.message
+            showCustomMessage('Playback Error', `Could not play "${video.name}".\n\n${err.message}`);
             this.closePlayer();
         });
         

@@ -71,6 +71,41 @@
 
     <div class="player-page" id="player">
         <div class="video-container" id="videoPlayerContainer">
+            <div class="video-header">
+                <div class="back-button">
+                    <div class="liquidGlass-wrapper">
+                        <div class="liquidGlass-effect"></div>
+                        <div class="liquidGlass-tint"></div>
+                        <div class="liquidGlass-shine"></div>
+                        <div class="liquidGlass-text">
+                            <button class="back-btn" id="backBtn" title="Back to Library">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="liquidGlass-wrapper">
+                        <div class="liquidGlass-effect"></div>
+                        <div class="liquidGlass-tint"></div>
+                        <div class="liquidGlass-shine"></div>
+                        <div class="liquidGlass-text">
+                            <div class="video-info-content">
+                                <div class="video-title" id="playerVideoTitle"></div>
+                                <div class="video-details">
+                                    <span class="video-resolution" id="playerVideoResolution"></span>
+                                    <span class="separator">•</span>
+                                    <span class="video-duration" id="playerVideoDuration"></span>
+                                    <span class="separator">•</span>
+                                    <span class="video-size" id="playerVideoSize"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <video class="main-video" id="mainVideo" playsinline></video>
             <div class="video-controls" id="videoControls">
                 <div class="liquidGlass-wrapper">
