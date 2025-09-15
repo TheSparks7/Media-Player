@@ -5,29 +5,36 @@ function showCustomMessage(title, message) {
 class AppleTVPlayer {
     constructor() {
         this.videos = [];
-        this.currentVideoIndex = -1;
-        this.isDraggingProgress = false;
-        this.playbackSpeed = 1.0;
-        this.cursorHideTimeout = null;
-        this.thumbnailVideo = document.createElement('video');
-        this.thumbnailVideo.style.position = 'absolute';
-        this.thumbnailVideo.style.left = '-9999px';
-        this.thumbnailVideo.style.top = '-9999px';
-        this.thumbnailCanvas = document.createElement('canvas');
-        this.thumbnailCanvas.width = 160;
-        this.thumbnailCanvas.height = 90;
-        this.thumbnailCanvas.style.position = 'absolute';
-        this.thumbnailCanvas.style.left = '-9999px';
-        this.thumbnailCanvas.style.top = '-9999px';
-        document.body.appendChild(this.thumbnailVideo);
-        document.body.appendChild(this.thumbnailCanvas);
+        // Preload demo video
+        this.addVideo({
+            name: "Jujutsu Kaisen -demo .mp4",
+            url: "Videos/Jujutsu Kaisen -demo .mp4",
+            thumbnail: "Videos/Jujutsu Kaisen -demo .png",
+            preload: true
+        }, true);
+    this.currentVideoIndex = -1;
+    this.isDraggingProgress = false;
+    this.playbackSpeed = 1.0;
+    this.cursorHideTimeout = null;
+    this.thumbnailVideo = document.createElement('video');
+    this.thumbnailVideo.style.position = 'absolute';
+    this.thumbnailVideo.style.left = '-9999px';
+    this.thumbnailVideo.style.top = '-9999px';
+    this.thumbnailCanvas = document.createElement('canvas');
+    this.thumbnailCanvas.width = 160;
+    this.thumbnailCanvas.height = 90;
+    this.thumbnailCanvas.style.position = 'absolute';
+    this.thumbnailCanvas.style.left = '-9999px';
+    this.thumbnailCanvas.style.top = '-9999px';
+    document.body.appendChild(this.thumbnailVideo);
+    document.body.appendChild(this.thumbnailCanvas);
         
-        this.initializeDOMElements(); // Call this FIRST
-        this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 100);
-        this.initializeCursor();
-        this.initializeTheme();
-        this.bindEvents();
-        window.addEventListener('beforeunload', () => this.cleanup());
+    this.initializeDOMElements(); // Call this FIRST
+    this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 100);
+    this.initializeCursor();
+    this.initializeTheme();
+    this.bindEvents();
+    window.addEventListener('beforeunload', () => this.cleanup());
 
         // Now this.pages is defined
         if (this.pages && this.pages.length > 0) {
@@ -246,12 +253,21 @@ class AppleTVPlayer {
         this.showPage('library');
     }
 
-    addVideo(file) {
-        const video = {
-            id: Date.now() + Math.random(),
-            name: file.name,
-            url: URL.createObjectURL(file)
-        };
+    addVideo(file, isPreloaded = false) {
+        let video;
+        if (isPreloaded) {
+            video = {
+                id: "preloaded-demo",
+                name: file.name,
+                url: file.url
+            };
+        } else {
+            video = {
+                id: Date.now() + Math.random(),
+                name: file.name,
+                url: URL.createObjectURL(file)
+            };
+        }
         this.videos.push(video);
     }
 
@@ -265,7 +281,13 @@ class AppleTVPlayer {
         this.videos.forEach((video, index) => {
             const card = document.createElement('div');
             card.className = 'video-card';
-            card.innerHTML = `<div class="video-thumbnail"><div class="video-icon">🎥</div></div><div class="video-info"><div class="video-title">${video.name}</div></div>`;
+            let thumbnailHtml = '';
+            if (video.thumbnail) {
+                thumbnailHtml = `<img class="video-thumb-img" src="${video.thumbnail}" alt="${video.name} thumbnail">`;
+            } else {
+                thumbnailHtml = `<div class="video-icon">🎥</div>`;
+            }
+            card.innerHTML = `<div class="video-thumbnail">${thumbnailHtml}</div><div class="video-info"><div class="video-title">${video.name}</div></div>`;
             card.addEventListener('click', () => this.playVideo(index));
             this.videoGrid.appendChild(card);
         });
