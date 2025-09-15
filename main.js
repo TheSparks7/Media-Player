@@ -12,6 +12,7 @@ class AppleTVPlayer {
             thumbnail: "Videos/Jujutsu Kaisen -demo .png",
             preload: true
         }, true);
+        this.renderLibrary();
     this.currentVideoIndex = -1;
     this.isDraggingProgress = false;
     this.playbackSpeed = 1.0;
