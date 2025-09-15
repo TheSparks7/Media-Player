@@ -5,18 +5,10 @@ function showCustomMessage(title, message) {
 class AppleTVPlayer {
     constructor() {
         this.videos = [];
-        // Preload demo video
-        this.addVideo({
-            name: "Jujutsu Kaisen -demo .mp4",
-            url: "Videos/Jujutsu Kaisen -demo .mp4",
-            thumbnail: "Videos/Jujutsu Kaisen -demo .png",
-            preload: true
-        }, true);
-        this.renderLibrary();
-    this.currentVideoIndex = -1;
-    this.isDraggingProgress = false;
-    this.playbackSpeed = 1.0;
-    this.cursorHideTimeout = null;
+        this.currentVideoIndex = -1;
+        this.isDraggingProgress = false;
+        this.playbackSpeed = 1.0;
+        this.cursorHideTimeout = null;
     this.thumbnailVideo = document.createElement('video');
     this.thumbnailVideo.style.position = 'absolute';
     this.thumbnailVideo.style.left = '-9999px';
@@ -35,6 +27,16 @@ class AppleTVPlayer {
     this.initializeCursor();
     this.initializeTheme();
     this.bindEvents();
+    
+    // Preload demo video after DOM elements are initialized
+    this.addVideo({
+        name: "Jujutsu Kaisen -demo .mp4",
+        url: "Videos/Jujutsu Kaisen -demo .mp4",
+        thumbnail: "Videos/Jujutsu Kaisen -demo .png",
+        preload: true
+    }, true);
+    this.renderLibrary();
+    
     window.addEventListener('beforeunload', () => this.cleanup());
 
         // Now this.pages is defined
@@ -260,7 +262,8 @@ class AppleTVPlayer {
             video = {
                 id: "preloaded-demo",
                 name: file.name,
-                url: file.url
+                url: file.url,
+                thumbnail: file.thumbnail
             };
         } else {
             video = {
@@ -273,9 +276,15 @@ class AppleTVPlayer {
     }
 
     renderLibrary() {
+        console.log('Rendering library, videos:', this.videos);
+        if (!this.videoGrid) {
+            console.error('videoGrid element not found!');
+            return;
+        }
         this.videoGrid.innerHTML = '';
         if (this.videos.length === 0) {
             this.videoGrid.innerHTML = '<p>Your library is empty.</p>';
+            console.log('Library is empty');
             return;
         }
 
