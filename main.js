@@ -543,7 +543,7 @@ class AppleTVPlayer {
                 if (this.videoControls) {
                      this.videoControls.classList.add('hidden-controls');
                 }
-            }, 3000);
+            }, 2000);
         }
     }
 
