@@ -484,6 +484,16 @@ body.light-mode .video-meta {
     pointer-events: none;
 }
 
+.player-page.hide-cursor {
+    cursor: none;
+}
+
+.hidden-controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
 .liquidGlass-wrapper {
     position: relative;
     display: flex;
