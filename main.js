@@ -533,11 +533,17 @@ class AppleTVPlayer {
     handleCursorVisibility() {
         clearTimeout(this.cursorHideTimeout);
         this.playerPage.classList.remove('hide-cursor');
+        if (this.videoControls) {
+            this.videoControls.classList.remove('hidden-controls');
+        }
 
         if (this.playerPage.classList.contains('active')) {
             this.cursorHideTimeout = setTimeout(() => {
                 this.playerPage.classList.add('hide-cursor');
-            }, 5000);
+                if (this.videoControls) {
+                     this.videoControls.classList.add('hidden-controls');
+                }
+            }, 3000);
         }
     }
 
