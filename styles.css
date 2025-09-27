@@ -415,6 +415,7 @@ body.light-mode .video-meta {
     justify-content: center;
     width: 24px;
     height: 24px;
+	color: white;
 }
 
 .video-info {
