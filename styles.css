@@ -476,6 +476,8 @@ body.light-mode .video-meta {
 }
 
 .video-controls,
+.back-button,
+.video-header,
 .video-info {
     opacity: 1;
     transition: opacity 0.2s ease;
