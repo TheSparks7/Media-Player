@@ -535,12 +535,6 @@ class AppleTVPlayer {
         this.playerPage.classList.remove('hide-cursor');
         if (this.videoControls) {
             this.videoControls.classList.remove('hidden-controls');
-        if (this.videoHeader)
-            this.videoHeader.classList.remove('video-header');
-        if (this.videoInfo)
-            this.videoInfo.classList.remove('video-info');
-        if (this.backButton)
-            this.backButton.classList.remove('back-button');
             
         }
 
@@ -549,12 +543,6 @@ class AppleTVPlayer {
                 this.playerPage.classList.add('hide-cursor');
                 if (this.videoControls) {
                      this.videoControls.classList.add('hidden-controls');
-                if (this.videoHeader)
-                    this.videoHeader.classList.remove('video-header');
-                if (this.videoInfo)
-                    this.videoInfo.classList.remove('video-info');
-                if (this.backButton)
-                    this.backButton.classList.remove('back-button');
                         }
                 }, 2000);
             }
