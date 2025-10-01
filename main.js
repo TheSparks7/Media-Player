@@ -547,41 +547,6 @@ class AppleTVPlayer {
         }
     }
 
-    const playerPage = document.querySelector(".player-page");
-const videoControls = document.querySelector(".video-controls");
-const videoHeader = document.querySelector(".video-header");
-    const videoInfo = document.querySelector(".video-info");
-
-let hideTimer;
-let lastMove = 0;
-
-function showUI() {
-    playerPage.classList.remove("hide-cursor");
-    videoControls.classList.remove("hide");
-    videoHeader.classList.remove("hide");
-    videoInfo.classList.remove("hide");
-}
-
-function hideUI() {
-    playerPage.classList.add("hide-cursor");
-    videoControls.classList.add("hide");
-    videoHeader.classList.add("hide");
-    videoInfo.classList.add("hide");
-}
-
-document.addEventListener("mousemove", () => {
-    const now = Date.now();
-    if (now - lastMove < 150) return; // throttle (150ms)
-    lastMove = now;
-
-    showUI();
-
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => {
-        hideUI();
-    }, 2000);
-});
-
     cleanup() {
         this.videos.forEach(video => {
             if (video.url) {
