@@ -20,7 +20,6 @@
 }
 
 body {
-    cursor: none; 
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
     background: var(--background-dark);
     color: var(--text-dark);
