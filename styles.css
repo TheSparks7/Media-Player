@@ -494,9 +494,6 @@ body.light-mode .video-meta {
 }
 
 .video-controls.hide,
-.back-button.hide,
-.video-header.hide,
-.video-info.hide {
 	opacity: 0;
 	pointer-events:none;
 	transition: opacity 0.2s ease;
