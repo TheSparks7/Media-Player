@@ -478,13 +478,7 @@ body.light-mode .video-meta {
 .video-controls,
 .video-header {
     opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.video-controls.hide,
-.video-header.hide {
-    opacity: 0;
-    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .player-page.hide-cursor {
@@ -495,6 +489,12 @@ body.light-mode .video-meta {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
+}
+
+.video-header.hide {
+	opacity: 0;
+	pointer-events:none;
+	transition: opacity 0.2s ease;
 }
 
 .liquidGlass-wrapper {
