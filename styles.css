@@ -476,7 +476,7 @@ body.light-mode .video-meta {
 }
 
 .video-controls,
-.video-header {
+.video-info {
     opacity: 1;
     transition: opacity 0.2s ease;
 }
@@ -491,7 +491,7 @@ body.light-mode .video-meta {
     transition: opacity 0.2s ease;
 }
 
-.video-header.hide {
+.video-info.hide {
 	opacity: 0;
 	pointer-events:none;
 	transition: opacity 0.2s ease;
