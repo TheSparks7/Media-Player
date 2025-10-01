@@ -215,9 +215,13 @@ input:checked + .slider:before {
     text-align: center;
 }
 
-.hero-content h1 {
+. h1 {
     font-size: 6em;
     font-weight: 700;
+}
+.hero-content {
+    position: relative;
+    z-index: 1; 
 }
 
 .hero-content p {
@@ -227,24 +231,34 @@ input:checked + .slider:before {
     color: var(--text-secondary-dark);
 }
 .liquidGlass-effect {
-	display: flex;
-	align-items:center;
-	justify-content:center;
-    border-radius: 15px;
-	font-size:large;
-
+    position: absolute;  /*Here too*/
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(10px);
+    filter: url(#glass-distortion); 
+    overflow: hidden;
+    isolation: isolate;
+    will-change: backdrop-filter, filter;
+    z-index: -1;
 }
-body.light-mode .hero-content p {
+body.light-mode . p {
     color: var(--text-secondary-light);
 }
 
-.interactive-glass {
-    width: 300px;
-    height: 300px;
-    border-radius: 30px;
-    margin: 0 auto;
-    margin-top: 25vh;
-}
+    .interactive-glass {
+        width: 300px;
+        height: 300px;
+        border-radius: 30px;
+        margin: 0 auto;
+        margin-top: 25vh; 
+        position: absolute; /*<<== added this, it keeps the thing inside of the parent not the whole body yk*/
+        top: 70%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0; 
+    }
 
 .library-container, .upload-container {
     max-width: 1200px;
