@@ -473,11 +473,16 @@ body.light-mode .video-meta {
     bottom: 38px;
     transform: translateX(-50%);
     z-index: 10;
-    opacity: 1;
-    transition: opacity 0.4s;
 }
 
-.video-controls.hide {
+.video-controls,
+.video-header {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.video-controls.hide,
+.video-header.hide {
     opacity: 0;
     pointer-events: none;
 }
