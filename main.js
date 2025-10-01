@@ -535,6 +535,13 @@ class AppleTVPlayer {
         this.playerPage.classList.remove('hide-cursor');
         if (this.videoControls) {
             this.videoControls.classList.remove('hidden-controls');
+        if (this.videoHeader)
+            this.videoHeader.classList.remove('video-header');
+        if (this.videoInfo)
+            this.videoInfo.classList.remove('video-info');
+        if (this.backButton)
+            this.backButton.classList.remove('back-button');
+            
         }
 
         if (this.playerPage.classList.contains('active')) {
@@ -542,48 +549,16 @@ class AppleTVPlayer {
                 this.playerPage.classList.add('hide-cursor');
                 if (this.videoControls) {
                      this.videoControls.classList.add('hidden-controls');
-                }
-            }, 2000);
+                if (this.videoHeader)
+                    this.videoHeader.classList.remove('video-header');
+                if (this.videoInfo)
+                    this.videoInfo.classList.remove('video-info');
+                if (this.backButton)
+                    this.backButton.classList.remove('back-button');
+                        }
+                }, 2000);
+            }
         }
-    }
-
-    const playerPage = document.querySelector(".player-page");
-const videoControls = document.querySelector(".video-controls");
-     const playerPage = document.querySelector(".back-button");
-    const videoHeader = document.querySelector(".video-header");
-const videoInfo = document.querySelector(".video-info");
-
-let hideTimer;
-let lastMove = 0;
-
-function showUI() {
-    playerPage.classList.remove("hide-cursor");
-    videoControls.classList.remove("hide");
-    backButton.classList.remoev("hide");
-     videoHeader.classList.remove("hide");
-    videoInfo.classList.remove("hide");
-}
-
-function hideUI() {
-    playerPage.classList.add("hide-cursor");
-    videoControls.classList.add("hide");
-    backButon.classList.add("hide");
-     videoHeader.classList.add("hide");
-    videoInfo.classList.add("hide");
-}
-
-document.addEventListener("mousemove", () => {
-    const now = Date.now();
-    if (now - lastMove < 150) return;
-    lastMove = now;
-
-    showUI();
-
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => {
-        hideUI();
-    }, 2000);
-});
 
     cleanup() {
         this.videos.forEach(video => {
