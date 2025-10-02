@@ -547,6 +547,8 @@ class AppleTVPlayer {
         }
     }
 
+    this.playerPage.addEventListener('mousemove', () => this.handleCursorVisibility());
+
     cleanup() {
         this.videos.forEach(video => {
             if (video.url) {
