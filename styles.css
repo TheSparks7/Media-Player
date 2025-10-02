@@ -19,8 +19,7 @@
     --text-secondary-light: rgba(0, 0, 0, 0.6);
 }
 
-body {
-    cursor: none; 
+body { 
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
     background: var(--background-dark);
     color: var(--text-dark);
