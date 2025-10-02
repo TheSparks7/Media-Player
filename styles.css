@@ -510,7 +510,7 @@ body.light-mode .liquidGlass-wrapper {
 }
 
 .liquidGlass-effect {
-    position: relative;
+    position: absolute;
     z-index: 0;
     inset: 0;
     backdrop-filter: blur(10px);
