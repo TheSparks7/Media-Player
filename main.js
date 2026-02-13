@@ -1,7 +1,3 @@
-function showCustomMessage(title, message) {
-    alert(title + ": " + message);
-}
-
 class AppleTVPlayer {
     constructor() {
         this.videos = [];
@@ -9,44 +5,41 @@ class AppleTVPlayer {
         this.isDraggingProgress = false;
         this.playbackSpeed = 1.0;
         this.cursorHideTimeout = null;
-    this.thumbnailVideo = document.createElement('video');
-    this.thumbnailVideo.style.position = 'absolute';
-    this.thumbnailVideo.style.left = '-9999px';
-    this.thumbnailVideo.style.top = '-9999px';
-    this.thumbnailCanvas = document.createElement('canvas');
-    this.thumbnailCanvas.width = 160;
-    this.thumbnailCanvas.height = 90;
-    this.thumbnailCanvas.style.position = 'absolute';
-    this.thumbnailCanvas.style.left = '-9999px';
-    this.thumbnailCanvas.style.top = '-9999px';
-    document.body.appendChild(this.thumbnailVideo);
-    document.body.appendChild(this.thumbnailCanvas);
-        
-    this.initializeDOMElements(); // Call this FIRST
-    this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 100);
-    this.initializeCursor();
-    this.initializeTheme();
-    this.bindEvents();
-    
-    // Preload demo video after DOM elements are initialized
-    this.addVideo({
-        name: "Jujutsu Kaisen -demo .mp4",
-        url: "Videos/Jujutsu Kaisen -demo .mp4",
-        thumbnail: "Videos/Jujutsu Kaisen -demo .png",
-        preload: true
-    }, true);
-    this.renderLibrary();
-    
-    window.addEventListener('beforeunload', () => this.cleanup());
+        this.thumbnailVideo = document.createElement('video');
+        this.thumbnailCanvas = document.createElement('canvas');
+        this.setupOffscreenElements();
 
-        // Now this.pages is defined
+        this.initializeDOMElements();
+        this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 100);
+        this.initializeCursor();
+        this.initializeTheme();
+        this.bindEvents();
+
+        this.addVideo({
+            name: "Jujutsu Kaisen -demo .webm",
+            url: "Videos/Jujutsu Kaisen -demo .webm",
+            thumbnail: "Videos/Jujutsu Kaisen -demo .png",
+            preload: true
+        }, true);
+        this.renderLibrary();
+
+        window.addEventListener('beforeunload', () => this.cleanup());
+
         if (this.pages && this.pages.length > 0) {
             this.pages.forEach(page => page.style.display = 'none');
             this.pages[0].style.display = 'block';
             this.pages[0].classList.add('active');
-        } else {
-            console.warn("No pages found. Ensure your HTML has elements with class 'page'.");
         }
+    }
+
+    setupOffscreenElements() {
+        const style = {position: 'absolute', left: '-9999px', top: '-9999px'};
+        Object.assign(this.thumbnailVideo.style, style);
+        this.thumbnailCanvas.width = 160;
+        this.thumbnailCanvas.height = 90;
+        Object.assign(this.thumbnailCanvas.style, style);
+        document.body.appendChild(this.thumbnailVideo);
+        document.body.appendChild(this.thumbnailCanvas);
     }
     initializeDOMElements() {
         this.cursor = document.querySelector('.cursor');
@@ -76,6 +69,12 @@ class AppleTVPlayer {
         this.speedBtn = document.getElementById('speedBtn');
         this.speedPickerContainer = document.getElementById('speedPickerContainer');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        const playBtnSvg = this.playBtn.querySelector('svg');
+        const pauseIcon = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        pauseIcon.classList.add('pause-icon');
+        pauseIcon.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2"/>';
+        playBtnSvg.appendChild(pauseIcon);
     }
 
     initializeCursor() {
@@ -148,12 +147,9 @@ class AppleTVPlayer {
     }
 
     bindEvents() {
-        // Back button in video player
         const backBtn = document.getElementById('backBtn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => this.closePlayer());
-        }
-        
+        if (backBtn) backBtn.addEventListener('click', () => this.closePlayer());
+
         this.navLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -162,16 +158,14 @@ class AppleTVPlayer {
         });
 
         if (this.uploadArea) {
+            const toggleDragover = (e, add) => {
+                e.preventDefault();
+                this.uploadArea.classList.toggle('dragover', add);
+            };
             this.uploadBtn.addEventListener('click', () => this.fileInput.click());
             this.fileInput.addEventListener('change', e => this.handleFiles(e.target.files));
-            this.uploadArea.addEventListener('dragover', e => {
-                e.preventDefault();
-                this.uploadArea.classList.add('dragover');
-            });
-            this.uploadArea.addEventListener('dragleave', e => {
-                e.preventDefault();
-                this.uploadArea.classList.remove('dragover');
-            });
+            this.uploadArea.addEventListener('dragover', e => toggleDragover(e, true));
+            this.uploadArea.addEventListener('dragleave', e => toggleDragover(e, false));
             this.uploadArea.addEventListener('drop', e => {
                 e.preventDefault();
                 this.uploadArea.classList.remove('dragover');
@@ -189,7 +183,6 @@ class AppleTVPlayer {
             this.mainVideo.addEventListener('volumechange', () => this.updateVolumeButton());
             this.mainVideo.addEventListener('click', () => this.togglePlay());
             document.addEventListener('keydown', e => this.handleKeyboard(e));
-
             this.volumeBtn.addEventListener('click', () => this.toggleMute());
             this.volumeSlider.addEventListener('input', e => this.setVolume(e.target.value / 100));
             this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
@@ -198,16 +191,12 @@ class AppleTVPlayer {
                 e.stopPropagation();
                 this.speedPickerContainer.classList.toggle('open');
             });
-            document.addEventListener('click', () => {
-                if(this.speedPickerContainer.classList.contains('open')) {
-                    this.speedPickerContainer.classList.remove('open');
-                }
-            });
+            document.addEventListener('click', () => this.speedPickerContainer.classList.remove('open'));
 
-            this.speedPickerContainer.querySelectorAll('.speed-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    this.updateSpeed(option.dataset.speed);
-                });
+            this.speedPickerContainer.addEventListener('click', e => {
+                if (e.target.classList.contains('speed-option')) {
+                    this.updateSpeed(e.target.dataset.speed);
+                }
             });
 
             this.progressContainer.addEventListener('mousedown', e => this.startSeek(e));
@@ -254,7 +243,7 @@ class AppleTVPlayer {
     handleFiles(files) {
         const videoFiles = Array.from(files).filter(file => file.type.startsWith('video/'));
         if (videoFiles.length === 0) {
-            showCustomMessage('No Files', 'Please select valid video files.');
+            alert('No Files: Please select valid video files.');
             return;
         }
         videoFiles.forEach(file => this.addVideo(file));
@@ -282,30 +271,74 @@ class AppleTVPlayer {
     }
 
     renderLibrary() {
-        console.log('Rendering library, videos:', this.videos);
         if (!this.videoGrid) {
             console.error('videoGrid element not found!');
             return;
         }
-        this.videoGrid.innerHTML = '';
         if (this.videos.length === 0) {
             this.videoGrid.innerHTML = '<p>Your library is empty.</p>';
-            console.log('Library is empty');
             return;
         }
 
-        this.videos.forEach((video, index) => {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            let thumbnailHtml = '';
-            if (video.thumbnail) {
-                thumbnailHtml = `<img class="video-thumb-img" src="${video.thumbnail}" alt="${video.name} thumbnail">`;
-            } else {
-                thumbnailHtml = `<div class="video-icon">🎥</div>`;
-            }
-            card.innerHTML = `<div class="video-thumbnail">${thumbnailHtml}</div><div class="video-info"><div class="video-title">${video.name}</div></div>`;
-            card.addEventListener('click', () => this.playVideo(index));
-            this.videoGrid.appendChild(card);
+        this.videoGrid.innerHTML = this.videos.map((video, index) =>
+            `<div class="video-card liquidGlass-wrapper">
+                <div class="liquidGlass-effect"></div>
+                <div class="liquidGlass-tint"></div>
+                <div class="liquidGlass-shine"></div>
+                <div class="liquidGlass-text">
+                    <div class="video-thumbnail">
+                        ${video.thumbnail ?
+                        `<img class="video-thumb-img" src="${video.thumbnail}" alt="${video.name} thumbnail">` :
+                        '<div class="video-icon">🎥</div>'}
+                        <video class="card-video" src="${video.url}" muted loop></video>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.name}</div>
+                    </div>
+                    <div class="video-card-controls">
+                        <button class="card-play-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button class="card-share-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8m-4-6-4-4-4 4m4-4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>`
+        ).join('');
+
+        this.videoGrid.querySelectorAll('.video-card').forEach((card, index) => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.card-share-btn') || e.target.closest('.card-play-btn')) {
+                    return;
+                }
+                this.playVideo(index)
+            });
+            const video = card.querySelector('.card-video');
+            card.addEventListener('mouseenter', () => {
+                video.play();
+            });
+            card.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+
+            const shareBtn = card.querySelector('.card-share-btn');
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const video = this.videos[index];
+                navigator.clipboard.writeText(video.url).then(() => {
+                    alert('Video URL copied to clipboard!');
+                }, () => {
+                    alert('Failed to copy video URL to clipboard.');
+                });
+            });
+
+            const playBtn = card.querySelector('.card-play-btn');
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.playVideo(index);
+            });
         });
     }
 
@@ -314,51 +347,36 @@ class AppleTVPlayer {
         if (index < 0 || index >= this.videos.length) return;
         this.currentVideoIndex = index;
         const video = this.videos[index];
-        
-        // Update video info elements
-        const title = document.getElementById('playerVideoTitle');
-        const duration = document.getElementById('playerVideoDuration');
-        const resolution = document.getElementById('playerVideoResolution');
-        const size = document.getElementById('playerVideoSize');
-        
-        // Set video name without extension
+        const [title, duration, resolution, size] = [
+            document.getElementById('playerVideoTitle'),
+            document.getElementById('playerVideoDuration'),
+            document.getElementById('playerVideoResolution'),
+            document.getElementById('playerVideoSize')
+        ];
+
         title.textContent = video.name.replace(/\.[^/.]+$/, "");
-        
-        // Reset info while loading
-        duration.textContent = "...";
-        resolution.textContent = "...";
-        size.textContent = "...";
-        
-        // Set video source and show player
+        duration.textContent = resolution.textContent = size.textContent = "...";
+
         this.mainVideo.src = video.url;
         this.showPage('player');
-        
-        // Set duration and resolution once metadata is loaded
+
         this.mainVideo.onloadedmetadata = () => {
             const mins = Math.floor(this.mainVideo.duration / 60);
             const secs = Math.floor(this.mainVideo.duration % 60);
             duration.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
             resolution.textContent = `${this.mainVideo.videoWidth}x${this.mainVideo.videoHeight}`;
-            
-            // Calculate and format video size (for file URLs)
+
             if (video.url.startsWith('blob:')) {
                 fetch(video.url)
-                    .then(response => {
-                        const sizeInMB = response.headers.get('content-length') / (1024 * 1024);
-                        size.textContent = sizeInMB.toFixed(1) + ' MB';
-                    })
+                    .then(res => size.textContent = (res.headers.get('content-length') / 1048576).toFixed(1) + ' MB')
                     .catch(() => size.textContent = '');
-            } else {
-                // For local files (preloaded videos), we might not have size info
-                size.textContent = '';
             }
         };
-        
+
         this.mainVideo.play().catch(err => {
-            showCustomMessage('Playback Error', `Could not play "${video.name}".\n\n${err.message}`);
+            alert(`Playback Error: Could not play "${video.name}".\n\n${err.message}`);
             this.closePlayer();
         });
-        
     }
 
     togglePlay() {
@@ -446,9 +464,11 @@ class AppleTVPlayer {
     }
 
     updatePlayButton() {
-        this.playBtn.innerHTML = this.mainVideo.paused ?
-            '<svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' :
-            '<svg width="24" height="24" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2"/></svg>';
+        if (this.mainVideo.paused) {
+            this.playBtn.classList.remove('paused');
+        } else {
+            this.playBtn.classList.add('paused');
+        }
     }
 
     updateVolumeButton() {

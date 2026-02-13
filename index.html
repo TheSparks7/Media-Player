@@ -14,24 +14,9 @@
         <div class="nav-content">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"></stop>
-                          <stop offset="100%" style="stop-color:#e8e8e8;stop-opacity:1"></stop>
-                        </linearGradient>
-                        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-                          <feGaussianBlur stdDeviation="1" result="coloredBlur"></feGaussianBlur>
-                          <feMerge> 
-                            <feMergeNode in="coloredBlur"></feMergeNode>
-                            <feMergeNode in="SourceGraphic"></feMergeNode> 
-                          </feMerge>
-                        </filter>
-                      </defs>
-                      <path d="M20 8 L12 16 L20 24" stroke="url(#arrowGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#softGlow)"></path>
-                            
-                      <path d="M20 8 L12 16 L20 24" stroke="rgba(255,255,255,0.8)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.6"></path>
-                   </svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" fill="white"/>
+                    </svg>
                 </div>
                 Media Player
             </div>
@@ -40,13 +25,20 @@
                 <a href="#" class="nav-link" data-page="library">Library</a>
                 <a href="#" class="nav-link" data-page="upload">Upload</a>
             </div>
-            <div class="theme-switch-wrapper">
-                <span class="theme-text">Dark</span>
-                <label class="theme-switch" for="checkbox">
-                    <input type="checkbox" id="checkbox" />
-                    <div class="slider round"></div>
-                </label>
-                <span class="theme-text">Light</span>
+            <div class="theme-switch-container liquidGlass-wrapper">
+                <div class="liquidGlass-effect"></div>
+                <div class="liquidGlass-tint"></div>
+                <div class="liquidGlass-shine"></div>
+                <div class="liquidGlass-text">
+                    <div class="theme-switch-wrapper">
+                        <span class="theme-text">Dark</span>
+                        <label class="theme-switch" for="checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <div class="slider round"></div>
+                        </label>
+                        <span class="theme-text">Light</span>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -96,10 +88,11 @@
                         <div class="liquidGlass-shine"></div>
                         <div class="liquidGlass-text">
                             <button class="back-btn" id="backBtn" title="Back to Library">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -140,10 +133,14 @@
                         </div>
                         <div class="controls-row">
                             <button class="control-btn" id="rewindBtn" title="Rewind 10s">
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11 19V5L4 12L11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 19V5L13 12L20 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11 5V19L4 12L11 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 5V19L13 12L20 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                             <button class="control-btn play-btn" id="playBtn" title="Play/Pause">
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <g class="play-icon">
+                                        <path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </g>
+                                </svg>
                             </button>
                             <button class="control-btn" id="fastForwardBtn" title="Fast Forward 10s">
                                 <svg width="24" height="24" viewBox="0 0 24 24"><path d="M13 5V19L20 12L13 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 5V19L11 12L4 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
