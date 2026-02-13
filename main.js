@@ -280,6 +280,7 @@ class AppleTVPlayer {
             return;
         }
 
+        // Use data-src for lazy loading
         this.videoGrid.innerHTML = this.videos.map((video, index) =>
             `<div class="video-card liquidGlass-wrapper">
                 <div class="liquidGlass-effect"></div>
@@ -288,9 +289,9 @@ class AppleTVPlayer {
                 <div class="liquidGlass-text">
                     <div class="video-thumbnail">
                         ${video.thumbnail ?
-                        `<img class="video-thumb-img" src="${video.thumbnail}" alt="${video.name} thumbnail">` :
+                        `<img class="video-thumb-img" data-src="${video.thumbnail}" alt="${video.name} thumbnail" loading="lazy" style="width:100%;height:100%;object-fit:cover;" srcset="${video.thumbnail} 1x, ${video.thumbnail} 2x">` :
                         '<div class="video-icon">🎥</div>'}
-                        <video class="card-video" src="${video.url}" muted loop></video>
+                        <video class="card-video" data-src="${video.url}" muted loop preload="none" playsinline style="width:100%;height:100%;object-fit:cover;max-width:100%;max-height:100%;"></video>
                     </div>
                     <div class="video-info">
                         <div class="video-title">${video.name}</div>
@@ -307,6 +308,36 @@ class AppleTVPlayer {
             </div>`
         ).join('');
 
+        // Lazy load images and videos using IntersectionObserver
+        const lazyLoad = (selector, attr) => {
+            const elements = this.videoGrid.querySelectorAll(selector);
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const el = entry.target;
+                            if (el.dataset[attr]) {
+                                el[attr] = el.dataset[attr];
+                                el.removeAttribute('data-' + attr);
+                            }
+                            obs.unobserve(el);
+                        }
+                    });
+                }, { rootMargin: '100px' });
+                elements.forEach(el => observer.observe(el));
+            } else {
+                // Fallback: load all
+                elements.forEach(el => {
+                    if (el.dataset[attr]) {
+                        el[attr] = el.dataset[attr];
+                        el.removeAttribute('data-' + attr);
+                    }
+                });
+            }
+        };
+        lazyLoad('img[data-src]', 'src');
+        lazyLoad('video[data-src]', 'src');
+
         this.videoGrid.querySelectorAll('.video-card').forEach((card, index) => {
             card.addEventListener('click', (e) => {
                 if (e.target.closest('.card-share-btn') || e.target.closest('.card-play-btn')) {
@@ -316,7 +347,7 @@ class AppleTVPlayer {
             });
             const video = card.querySelector('.card-video');
             card.addEventListener('mouseenter', () => {
-                video.play();
+                if (video.src) video.play();
             });
             card.addEventListener('mouseleave', () => {
                 video.pause();

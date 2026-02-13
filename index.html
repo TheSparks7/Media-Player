@@ -10,7 +10,7 @@
 <body>
     <div class="cursor"></div>
     <div class="blob"></div>
-    <nav class="nav">
+    <nav class="nav" role="navigation" aria-label="Main Navigation">
         <div class="nav-content">
             <div class="logo">
                 <div class="logo-icon">
@@ -21,9 +21,9 @@
                 Media Player
             </div>
             <div class="nav-links">
-                <a href="#" class="nav-link active" data-page="home">Home</a>
-                <a href="#" class="nav-link" data-page="library">Library</a>
-                <a href="#" class="nav-link" data-page="upload">Upload</a>
+                <a href="#" class="nav-link active" data-page="home" tabindex="0">Home</a>
+                <a href="#" class="nav-link" data-page="library" tabindex="0">Library</a>
+                <a href="#" class="nav-link" data-page="upload" tabindex="0">Upload</a>
             </div>
             <div class="theme-switch-container liquidGlass-wrapper">
                 <div class="liquidGlass-effect"></div>
@@ -88,7 +88,7 @@
                         <div class="liquidGlass-shine"></div>
                         <div class="liquidGlass-text">
                             <button class="back-btn" id="backBtn" title="Back to Library">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                                 <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
@@ -133,23 +133,23 @@
                         </div>
                         <div class="controls-row">
                             <button class="control-btn" id="rewindBtn" title="Rewind 10s">
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11 5V19L4 12L11 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 5V19L13 12L20 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5V19L4 12L11 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 5V19L13 12L20 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                             <button class="control-btn play-btn" id="playBtn" title="Play/Pause">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                     <g class="play-icon">
                                         <path d="M5 5.27436V18.7256C5 19.7621 6.03116 20.4253 6.92164 19.8618L18.3123 13.1362C19.1947 12.5774 19.1947 11.4226 18.3123 10.8638L6.92164 4.13819C6.03116 3.57466 5 4.23785 5 5.27436Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </g>
                                 </svg>
                             </button>
                             <button class="control-btn" id="fastForwardBtn" title="Fast Forward 10s">
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M13 5V19L20 12L13 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 5V19L11 12L4 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 5V19L20 12L13 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 5V19L11 12L4 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                             <div class="time-display">0:00 / 0:00</div>
                             <div class="spacer"></div>
                             <div class="volume-control">
                                 <button class="control-btn" id="volumeBtn" title="Mute/Unmute">
-                                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.54 8.46C16.48 9.4 17 10.62 17 12C17 13.38 16.48 14.6 15.54 15.54" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.54 8.46C16.48 9.4 17 10.62 17 12C17 13.38 16.48 14.6 15.54 15.54" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 </button>
                                 <div class="volume-slider-container">
                                     <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
@@ -166,7 +166,7 @@
                                 </div>
                             </div>
                             <button class="control-btn" id="fullscreenBtn" title="Toggle Fullscreen">
-                                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
                         </div>
                     </div>
