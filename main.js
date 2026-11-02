@@ -9,6 +9,8 @@ class AppleTVPlayer {
         this.thumbnailVideo = document.createElement('video');
         this.thumbnailCanvas = document.createElement('canvas');
         this.frameRequest = null;
+        this.previewTimer = null;
+        this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         this.setupOffscreenElements();
         this.initializeDOMElements();
@@ -43,10 +45,12 @@ class AppleTVPlayer {
             position: 'absolute',
             left: '-9999px',
             top: '-9999px',
-            visibility: 'hidden'
+            visibility: 'hidden',
+            preload: 'metadata'
         };
 
         Object.assign(this.thumbnailVideo.style, style);
+        this.thumbnailVideo.preload = 'metadata';
         this.thumbnailCanvas.width = 160;
         this.thumbnailCanvas.height = 90;
         Object.assign(this.thumbnailCanvas.style, style);
@@ -84,6 +88,10 @@ class AppleTVPlayer {
         this.speedPickerContainer = document.getElementById('speedPickerContainer');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
+        if (this.mainVideo) {
+            this.mainVideo.preload = 'metadata';
+        }
+
         if (this.playBtn) {
             const playBtnSvg = this.playBtn.querySelector('svg');
             const pauseIcon = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -98,7 +106,7 @@ class AppleTVPlayer {
     initializeCursor() {
         if (!this.cursor || !this.blob) return;
 
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (this.reduceMotion) {
             this.cursor.style.display = 'none';
             this.blob.style.display = 'none';
             return;
@@ -337,7 +345,7 @@ class AppleTVPlayer {
                 <div class="liquidGlass-text">
                     <div class="video-thumbnail">
                         ${video.thumbnail ? `<img class="video-thumb-img" data-src="${video.thumbnail}" alt="${video.name} thumbnail" loading="lazy" style="width:100%;height:100%;object-fit:cover;" />` : '<div class="video-icon">🎥</div>'}
-                        <video class="card-video" data-src="${video.url}" muted loop preload="none" playsinline style="width:100%;height:100%;object-fit:cover;max-width:100%;max-height:100%;"></video>
+                        <video class="card-video" data-src="${video.url}" muted loop preload="metadata" playsinline style="width:100%;height:100%;object-fit:cover;max-width:100%;max-height:100%;"></video>
                     </div>
                     <div class="video-info">
                         <div class="video-title">${video.name}</div>
@@ -476,6 +484,7 @@ class AppleTVPlayer {
 
         this.mainVideo.src = video.url;
         this.mainVideo.load();
+        this.mainVideo.preload = 'metadata';
         this.mainVideo.muted = false;
         this.showPage('player');
 
@@ -696,28 +705,48 @@ class AppleTVPlayer {
 
         this.thumbnailTimeIndicator.textContent = this.formatTime(hoverTime);
 
-        if (this.thumbnailVideo.src !== this.mainVideo.currentSrc) {
-            this.thumbnailVideo.src = this.mainVideo.currentSrc;
+        if (this.previewTimer) {
+            clearTimeout(this.previewTimer);
         }
 
-        if (this.thumbnailVideo.readyState < 1) {
-            this.thumbnailVideo.load();
-            return;
-        }
+        this.previewTimer = setTimeout(() => {
+            const source = this.mainVideo.currentSrc || this.mainVideo.src;
 
-        this.thumbnailVideo.currentTime = hoverTime;
-        this.thumbnailVideo.onseeked = () => {
+            if (this.thumbnailVideo.src !== source) {
+                this.thumbnailVideo.src = source;
+                this.thumbnailVideo.load();
+                this.thumbnailVideo.currentTime = hoverTime;
+                return;
+            }
+
+            if (this.thumbnailVideo.readyState < 2) {
+                return;
+            }
+
             const ctx = this.thumbnailCanvas.getContext('2d');
             if (!ctx) return;
 
-            ctx.drawImage(this.thumbnailVideo, 0, 0, this.thumbnailCanvas.width, this.thumbnailCanvas.height);
-            this.progressThumbnailImg.src = this.thumbnailCanvas.toDataURL('image/jpeg', 0.7);
-            this.progressThumbnailPreview.style.left = `${percent * 100}%`;
-            this.progressThumbnailPreview.style.display = 'block';
-        };
+            try {
+                this.thumbnailVideo.currentTime = hoverTime;
+            } catch (error) {
+                return;
+            }
+
+            this.thumbnailVideo.onseeked = () => {
+                ctx.drawImage(this.thumbnailVideo, 0, 0, this.thumbnailCanvas.width, this.thumbnailCanvas.height);
+                this.progressThumbnailImg.src = this.thumbnailCanvas.toDataURL('image/jpeg', 0.7);
+                this.progressThumbnailPreview.style.left = `${percent * 100}%`;
+                this.progressThumbnailPreview.style.display = 'block';
+            };
+        }, 40);
     }
 
     hideThumbnailPreview() {
+        if (this.previewTimer) {
+            clearTimeout(this.previewTimer);
+            this.previewTimer = null;
+        }
+
         if (this.progressThumbnailPreview) {
             this.progressThumbnailPreview.style.display = 'none';
         }
@@ -746,6 +775,10 @@ class AppleTVPlayer {
 
     cleanup() {
         cancelAnimationFrame(this.frameRequest);
+
+        if (this.previewTimer) {
+            clearTimeout(this.previewTimer);
+        }
 
         this.videos.forEach(video => {
             if (video && video.url && video.url.startsWith('blob:')) {
