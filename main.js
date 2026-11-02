@@ -8,7 +8,7 @@ class AppleTVPlayer {
         this.cursorHideTimeout = null;
         this.thumbnailVideo = document.createElement('video');
         this.thumbnailCanvas = document.createElement('canvas');
-        this.frameRequest = null;
+        this.animationFrame = null;
         this.previewTimer = null;
         this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -18,7 +18,7 @@ class AppleTVPlayer {
         this.initializeTheme();
         this.bindEvents();
 
-        this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 100);
+        this.throttledShowThumbnailPreview = this.throttle(this.showThumbnailPreview, 120);
 
         this.addVideo({
             name: 'Jujutsu Kaisen -demo .webm',
@@ -41,19 +41,21 @@ class AppleTVPlayer {
     }
 
     setupOffscreenElements() {
-        const style = {
+        const offscreenStyle = {
             position: 'absolute',
             left: '-9999px',
             top: '-9999px',
-            visibility: 'hidden',
-            preload: 'metadata'
+            opacity: '0',
+            visibility: 'hidden'
         };
 
-        Object.assign(this.thumbnailVideo.style, style);
+        Object.assign(this.thumbnailVideo.style, offscreenStyle);
         this.thumbnailVideo.preload = 'metadata';
+        this.thumbnailVideo.muted = true;
+
         this.thumbnailCanvas.width = 160;
         this.thumbnailCanvas.height = 90;
-        Object.assign(this.thumbnailCanvas.style, style);
+        Object.assign(this.thumbnailCanvas.style, offscreenStyle);
 
         document.body.appendChild(this.thumbnailVideo);
         document.body.appendChild(this.thumbnailCanvas);
@@ -88,10 +90,6 @@ class AppleTVPlayer {
         this.speedPickerContainer = document.getElementById('speedPickerContainer');
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
-        if (this.mainVideo) {
-            this.mainVideo.preload = 'metadata';
-        }
-
         if (this.playBtn) {
             const playBtnSvg = this.playBtn.querySelector('svg');
             const pauseIcon = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -119,24 +117,24 @@ class AppleTVPlayer {
         this.blobX = this.mouseX;
         this.blobY = this.mouseY;
 
-        window.addEventListener('mousemove', e => {
+        window.addEventListener('pointermove', e => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
         });
 
-        const animateCursor = () => {
+        const tick = () => {
             this.cursorX += (this.mouseX - this.cursorX) * 0.18;
             this.cursorY += (this.mouseY - this.cursorY) * 0.18;
-            this.blobX += (this.mouseX - this.blobX) * 0.07;
-            this.blobY += (this.mouseY - this.blobY) * 0.07;
+            this.blobX += (this.mouseX - this.blobX) * 0.08;
+            this.blobY += (this.mouseY - this.blobY) * 0.08;
 
-            this.cursor.style.transform = `translate(${this.cursorX}px, ${this.cursorY}px)`;
-            this.blob.style.transform = `translate(${this.blobX}px, ${this.blobY}px)`;
+            this.cursor.style.transform = `translate3d(${this.cursorX}px, ${this.cursorY}px, 0)`;
+            this.blob.style.transform = `translate3d(${this.blobX}px, ${this.blobY}px, 0)`;
 
-            this.frameRequest = requestAnimationFrame(animateCursor);
+            this.animationFrame = requestAnimationFrame(tick);
         };
 
-        this.frameRequest = requestAnimationFrame(animateCursor);
+        this.animationFrame = requestAnimationFrame(tick);
 
         const hoverElements = document.querySelectorAll('a, button, .control-btn, .nav-link, .upload-btn, .video-card');
         hoverElements.forEach(el => {
@@ -145,12 +143,12 @@ class AppleTVPlayer {
                 this.cursor.style.width = `${rect.width}px`;
                 this.cursor.style.height = `${rect.height}px`;
                 this.cursor.style.borderRadius = getComputedStyle(el).borderRadius;
-                this.cursor.style.transform = `translate(${rect.left + rect.width / 2}px, ${rect.top + rect.height / 2}px)`;
+                this.cursor.style.transform = `translate3d(${rect.left + rect.width / 2}px, ${rect.top + rect.height / 2}px, 0)`;
             });
 
             el.addEventListener('mouseleave', () => {
-                this.cursor.style.width = '20px';
-                this.cursor.style.height = '20px';
+                this.cursor.style.width = '18px';
+                this.cursor.style.height = '18px';
                 this.cursor.style.borderRadius = '50%';
             });
         });
@@ -159,19 +157,13 @@ class AppleTVPlayer {
     initializeTheme() {
         if (!this.toggleSwitch) return;
 
-        let currentTheme = localStorage.getItem('theme');
-
-        if (!currentTheme) {
-            currentTheme = 'dark-mode';
-            localStorage.setItem('theme', currentTheme);
-        }
-
-        if (currentTheme === 'light-mode') {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light-mode') {
             document.body.classList.add('light-mode');
             this.toggleSwitch.checked = true;
         }
 
-        this.toggleSwitch.addEventListener('change', this.switchTheme.bind(this));
+        this.toggleSwitch.addEventListener('change', e => this.switchTheme(e));
     }
 
     switchTheme(e) {
@@ -186,9 +178,7 @@ class AppleTVPlayer {
 
     bindEvents() {
         const backBtn = document.getElementById('backBtn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => this.closePlayer());
-        }
+        if (backBtn) backBtn.addEventListener('click', () => this.closePlayer());
 
         this.navLinks.forEach(link => {
             link.addEventListener('click', e => {
@@ -235,15 +225,13 @@ class AppleTVPlayer {
 
             document.addEventListener('click', e => {
                 if (!this.speedPickerContainer) return;
-                if (e.target && e.target.closest('#speedBtn')) return;
+                if (e.target && (e.target.closest('#speedBtn') || e.target.closest('.speed-option'))) return;
                 this.speedPickerContainer.classList.remove('open');
             });
 
             this.speedPickerContainer?.addEventListener('click', e => {
                 const option = e.target.closest('.speed-option');
-                if (option) {
-                    this.updateSpeed(option.dataset.speed);
-                }
+                if (option) this.updateSpeed(option.dataset.speed);
             });
 
             this.progressContainer?.addEventListener('mousedown', e => this.startSeek(e));
@@ -252,6 +240,7 @@ class AppleTVPlayer {
             this.progressContainer?.addEventListener('touchstart', e => this.startSeek(e), { passive: false });
             document.addEventListener('touchmove', e => this.duringSeek(e));
             document.addEventListener('touchend', () => this.endSeek());
+
             this.progressContainer?.addEventListener('mousemove', e => this.throttledShowThumbnailPreview(e));
             this.progressContainer?.addEventListener('mouseleave', () => this.hideThumbnailPreview());
             this.playerPage.addEventListener('mousemove', () => this.handleCursorVisibility());
@@ -260,8 +249,6 @@ class AppleTVPlayer {
 
     showPage(pageName) {
         if (!this.pages || !this.playerPage) return;
-
-        const targetPage = pageName === 'player' ? this.playerPage : document.getElementById(pageName);
 
         this.pages.forEach(page => {
             page.classList.remove('active');
@@ -274,11 +261,13 @@ class AppleTVPlayer {
         if (pageName === 'player') {
             this.playerPage.classList.add('active');
             document.body.classList.add('player-active');
-            this.lastPage = this.lastPage || 'library';
-        } else if (targetPage) {
-            targetPage.classList.add('active');
-            targetPage.style.display = 'block';
-            this.lastPage = pageName;
+        } else {
+            const target = document.getElementById(pageName);
+            if (target) {
+                target.classList.add('active');
+                target.style.display = 'block';
+                this.lastPage = pageName;
+            }
         }
 
         this.navLinks.forEach(link => {
@@ -287,11 +276,10 @@ class AppleTVPlayer {
     }
 
     handleFiles(files) {
-        const list = files ? Array.from(files) : [];
-        const videoFiles = list.filter(file => {
+        const videoFiles = Array.from(files || []).filter(file => {
             const validType = file.type && file.type.startsWith('video/');
-            const validExtension = /\.(mp4|webm|mov|m4v|mkv|avi|wmv|ogg|ogv)$/i.test(file.name || '');
-            return validType || validExtension;
+            const validExt = /\.(mp4|webm|mov|m4v|mkv|avi|wmv|ogg|ogv)$/i.test(file.name || '');
+            return validType || validExt;
         });
 
         if (videoFiles.length === 0) {
@@ -305,32 +293,23 @@ class AppleTVPlayer {
     }
 
     addVideo(file, isPreloaded = false) {
-        let video;
-
-        if (isPreloaded) {
-            video = {
-                id: 'preloaded-demo',
-                name: file.name,
-                url: file.url,
-                thumbnail: file.thumbnail || null
-            };
-        } else {
-            video = {
-                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                name: file.name,
-                url: URL.createObjectURL(file),
-                thumbnail: null
-            };
-        }
+        const video = isPreloaded ? {
+            id: 'preloaded-demo',
+            name: file.name,
+            url: file.url,
+            thumbnail: file.thumbnail || null
+        } : {
+            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            name: file.name,
+            url: URL.createObjectURL(file),
+            thumbnail: null
+        };
 
         this.videos.push(video);
     }
 
     renderLibrary() {
-        if (!this.videoGrid) {
-            console.error('videoGrid element not found!');
-            return;
-        }
+        if (!this.videoGrid) return;
 
         if (this.videos.length === 0) {
             this.videoGrid.innerHTML = '<p>Your library is empty.</p>';
@@ -344,8 +323,8 @@ class AppleTVPlayer {
                 <div class="liquidGlass-shine"></div>
                 <div class="liquidGlass-text">
                     <div class="video-thumbnail">
-                        ${video.thumbnail ? `<img class="video-thumb-img" data-src="${video.thumbnail}" alt="${video.name} thumbnail" loading="lazy" style="width:100%;height:100%;object-fit:cover;" />` : '<div class="video-icon">🎥</div>'}
-                        <video class="card-video" data-src="${video.url}" muted loop preload="metadata" playsinline style="width:100%;height:100%;object-fit:cover;max-width:100%;max-height:100%;"></video>
+                        ${video.thumbnail ? `<img class="video-thumb-img" data-src="${video.thumbnail}" alt="${video.name} thumbnail" loading="lazy"/>` : '<div class="video-icon">🎥</div>'}
+                        <video class="card-video" data-src="${video.url}" muted loop preload="metadata" playsinline></video>
                     </div>
                     <div class="video-info">
                         <div class="video-title">${video.name}</div>
@@ -364,20 +343,18 @@ class AppleTVPlayer {
 
         const lazyLoad = (selector, attr) => {
             const elements = this.videoGrid.querySelectorAll(selector);
+            if (!elements.length) return;
 
             if ('IntersectionObserver' in window) {
                 const observer = new IntersectionObserver((entries, obs) => {
                     entries.forEach(entry => {
                         if (!entry.isIntersecting) return;
-
                         const el = entry.target;
-                        const value = el.dataset[attr];
-
-                        if (value) {
-                            el[attr] = value;
+                        const val = el.dataset[attr];
+                        if (val) {
+                            el[attr] = val;
                             el.removeAttribute('data-' + attr);
                         }
-
                         obs.unobserve(el);
                     });
                 }, { rootMargin: '100px' });
@@ -387,9 +364,9 @@ class AppleTVPlayer {
             }
 
             elements.forEach(el => {
-                const value = el.dataset[attr];
-                if (value) {
-                    el[attr] = value;
+                const val = el.dataset[attr];
+                if (val) {
+                    el[attr] = val;
                     el.removeAttribute('data-' + attr);
                 }
             });
@@ -404,36 +381,30 @@ class AppleTVPlayer {
             const playBtn = card.querySelector('.card-play-btn');
 
             card.addEventListener('click', e => {
-                if (e.target.closest('.card-share-btn') || e.target.closest('.card-play-btn')) {
-                    return;
-                }
-
+                if (e.target.closest('.card-share-btn') || e.target.closest('.card-play-btn')) return;
                 this.playVideo(index);
             });
 
             card.addEventListener('mouseenter', () => {
-                if (!video || !video.src) return;
-                video.play().catch(() => {});
+                if (video && video.src) {
+                    video.play().catch(() => {});
+                }
             });
 
             card.addEventListener('mouseleave', () => {
-                if (!video) return;
-                video.pause();
-                video.currentTime = 0;
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
             });
 
             shareBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 const currentVideo = this.videos[index];
-
                 if (!currentVideo) return;
 
                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(currentVideo.url).then(() => {
-                        alert('Video URL copied to clipboard!');
-                    }).catch(() => {
-                        this.fallbackCopyText(currentVideo.url);
-                    });
+                    navigator.clipboard.writeText(currentVideo.url).then(() => alert('Video URL copied to clipboard!')).catch(() => this.fallbackCopyText(currentVideo.url));
                 } else {
                     this.fallbackCopyText(currentVideo.url);
                 }
@@ -447,34 +418,35 @@ class AppleTVPlayer {
     }
 
     fallbackCopyText(value) {
-        const tempInput = document.createElement('textarea');
-        tempInput.value = value;
-        tempInput.setAttribute('readonly', '');
-        tempInput.style.position = 'fixed';
-        tempInput.style.left = '-9999px';
-        document.body.appendChild(tempInput);
-        tempInput.select();
+        const temp = document.createElement('textarea');
+        temp.value = value;
+        temp.setAttribute('readonly', '');
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
 
         try {
-            document.execCommand('copy');
-            alert('Video URL copied to clipboard!');
-        } catch (error) {
+            if (document.execCommand('copy')) {
+                alert('Video URL copied to clipboard!');
+            } else {
+                alert('Failed to copy video URL to clipboard.');
+            }
+        } catch {
             alert('Failed to copy video URL to clipboard.');
         }
 
-        document.body.removeChild(tempInput);
+        document.body.removeChild(temp);
     }
 
     playVideo(index) {
         if (index < 0 || index >= this.videos.length || !this.mainVideo) return;
 
         const video = this.videos[index];
-        const [title, duration, resolution, size] = [
-            document.getElementById('playerVideoTitle'),
-            document.getElementById('playerVideoDuration'),
-            document.getElementById('playerVideoResolution'),
-            document.getElementById('playerVideoSize')
-        ];
+        const title = document.getElementById('playerVideoTitle');
+        const duration = document.getElementById('playerVideoDuration');
+        const resolution = document.getElementById('playerVideoResolution');
+        const size = document.getElementById('playerVideoSize');
 
         if (!title || !duration || !resolution || !size) return;
 
@@ -485,7 +457,6 @@ class AppleTVPlayer {
         this.mainVideo.src = video.url;
         this.mainVideo.load();
         this.mainVideo.preload = 'metadata';
-        this.mainVideo.muted = false;
         this.showPage('player');
 
         this.mainVideo.onloadedmetadata = () => {
@@ -498,9 +469,7 @@ class AppleTVPlayer {
                 fetch(video.url)
                     .then(response => {
                         const length = response.headers.get('content-length');
-                        if (length) {
-                            size.textContent = `${(Number(length) / 1048576).toFixed(1)} MB`;
-                        }
+                        if (length) size.textContent = `${(Number(length) / 1048576).toFixed(1)} MB`;
                     })
                     .catch(() => {
                         size.textContent = '';
@@ -516,12 +485,8 @@ class AppleTVPlayer {
 
     togglePlay() {
         if (!this.mainVideo) return;
-
-        if (this.mainVideo.paused) {
-            this.mainVideo.play().catch(() => {});
-        } else {
-            this.mainVideo.pause();
-        }
+        if (this.mainVideo.paused) this.mainVideo.play().catch(() => {});
+        else this.mainVideo.pause();
     }
 
     rewind() {
@@ -536,14 +501,9 @@ class AppleTVPlayer {
 
     updateProgress() {
         if (!this.mainVideo || !this.mainVideo.duration) return;
-
         const percent = Math.min(1, Math.max(0, this.mainVideo.currentTime / this.mainVideo.duration));
         this.progressBar.style.width = `${percent * 100}%`;
-
-        if (this.progressThumb) {
-            this.progressThumb.style.left = `${percent * 100}%`;
-        }
-
+        if (this.progressThumb) this.progressThumb.style.left = `${percent * 100}%`;
         this.timeDisplay.textContent = `${this.formatTime(this.mainVideo.currentTime)} / ${this.formatTime(this.mainVideo.duration)}`;
     }
 
@@ -570,14 +530,8 @@ class AppleTVPlayer {
     }
 
     closePlayer() {
-        if (this.mainVideo) {
-            this.mainVideo.pause();
-        }
-
-        if (this.playerPage) {
-            this.playerPage.classList.remove('active');
-        }
-
+        if (this.mainVideo) this.mainVideo.pause();
+        if (this.playerPage) this.playerPage.classList.remove('active');
         document.body.classList.remove('player-active');
         this.showPage(this.lastPage || 'library');
     }
@@ -597,9 +551,7 @@ class AppleTVPlayer {
     }
 
     duringSeek(e) {
-        if (this.isDraggingProgress) {
-            this.seek(e);
-        }
+        if (this.isDraggingProgress) this.seek(e);
     }
 
     endSeek() {
@@ -612,19 +564,17 @@ class AppleTVPlayer {
         const rect = this.progressContainer.getBoundingClientRect();
         const clientX = e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
         const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
         this.mainVideo.currentTime = percent * this.mainVideo.duration;
         this.updateProgress();
     }
 
     updatePlayButton() {
-        if (!this.playBtn) return;
+        if (!this.playBtn || !this.mainVideo) return;
         this.playBtn.classList.toggle('paused', !this.mainVideo.paused);
     }
 
     updateVolumeButton() {
         if (!this.volumeBtn || !this.mainVideo) return;
-
         const muted = this.mainVideo.muted || this.mainVideo.volume === 0;
         this.volumeBtn.innerHTML = muted ?
             '<svg width="24" height="24" viewBox="0 0 24 24"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="18" y1="9" x2="22" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="9" x2="18" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' :
@@ -634,14 +584,11 @@ class AppleTVPlayer {
     toggleMute() {
         if (!this.mainVideo) return;
         this.mainVideo.muted = !this.mainVideo.muted;
-        if (this.volumeSlider) {
-            this.volumeSlider.value = this.mainVideo.muted ? 0 : this.mainVideo.volume * 100;
-        }
+        if (this.volumeSlider) this.volumeSlider.value = this.mainVideo.muted ? 0 : this.mainVideo.volume * 100;
     }
 
     setVolume(value) {
         if (!this.mainVideo) return;
-
         const safeValue = Math.max(0, Math.min(1, Number(value) || 0));
         this.mainVideo.volume = safeValue;
         this.mainVideo.muted = safeValue === 0;
@@ -649,18 +596,11 @@ class AppleTVPlayer {
     }
 
     updateSpeed(speed) {
-        const parsedSpeed = Number(speed);
-        if (!Number.isFinite(parsedSpeed) || parsedSpeed <= 0) return;
-
-        this.playbackSpeed = parsedSpeed;
-        if (this.mainVideo) {
-            this.mainVideo.playbackRate = this.playbackSpeed;
-        }
-
-        if (this.speedBtn) {
-            this.speedBtn.textContent = `${this.playbackSpeed}x`;
-        }
-
+        const value = Number(speed);
+        if (!Number.isFinite(value) || value <= 0) return;
+        this.playbackSpeed = value;
+        if (this.mainVideo) this.mainVideo.playbackRate = this.playbackSpeed;
+        if (this.speedBtn) this.speedBtn.textContent = `${this.playbackSpeed}x`;
         if (this.speedPickerContainer) {
             this.speedPickerContainer.querySelectorAll('.speed-option').forEach(option => {
                 option.classList.toggle('active', Number(option.dataset.speed) === this.playbackSpeed);
@@ -670,7 +610,6 @@ class AppleTVPlayer {
 
     toggleFullscreen() {
         if (!this.playerPage) return;
-
         if (!document.fullscreenElement) {
             this.playerPage.requestFullscreen?.().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -682,21 +621,16 @@ class AppleTVPlayer {
 
     throttle(func, limit) {
         let inThrottle = false;
-
         return (...args) => {
-            if (!inThrottle) {
-                func.apply(this, args);
-                inThrottle = true;
-                setTimeout(() => {
-                    inThrottle = false;
-                }, limit);
-            }
+            if (inThrottle) return;
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => { inThrottle = false; }, limit);
         };
     }
 
     showThumbnailPreview(e) {
-        if (!this.mainVideo || !this.progressContainer || !this.progressThumbnailPreview || !this.thumbnailTimeIndicator) return;
-        if (!this.mainVideo.duration) return;
+        if (!this.mainVideo || !this.progressContainer || !this.progressThumbnailPreview || !this.thumbnailTimeIndicator || !this.mainVideo.duration) return;
 
         const rect = this.progressContainer.getBoundingClientRect();
         const clientX = e.touches && e.touches.length ? e.touches[0].clientX : e.clientX;
@@ -705,40 +639,35 @@ class AppleTVPlayer {
 
         this.thumbnailTimeIndicator.textContent = this.formatTime(hoverTime);
 
-        if (this.previewTimer) {
-            clearTimeout(this.previewTimer);
-        }
+        if (this.previewTimer) clearTimeout(this.previewTimer);
 
         this.previewTimer = setTimeout(() => {
             const source = this.mainVideo.currentSrc || this.mainVideo.src;
+            if (!source) return;
 
             if (this.thumbnailVideo.src !== source) {
                 this.thumbnailVideo.src = source;
                 this.thumbnailVideo.load();
-                this.thumbnailVideo.currentTime = hoverTime;
                 return;
             }
 
-            if (this.thumbnailVideo.readyState < 2) {
-                return;
-            }
-
-            const ctx = this.thumbnailCanvas.getContext('2d');
-            if (!ctx) return;
+            if (this.thumbnailVideo.readyState < 2) return;
 
             try {
                 this.thumbnailVideo.currentTime = hoverTime;
-            } catch (error) {
+            } catch {
                 return;
             }
 
             this.thumbnailVideo.onseeked = () => {
+                const ctx = this.thumbnailCanvas.getContext('2d');
+                if (!ctx) return;
                 ctx.drawImage(this.thumbnailVideo, 0, 0, this.thumbnailCanvas.width, this.thumbnailCanvas.height);
                 this.progressThumbnailImg.src = this.thumbnailCanvas.toDataURL('image/jpeg', 0.7);
                 this.progressThumbnailPreview.style.left = `${percent * 100}%`;
                 this.progressThumbnailPreview.style.display = 'block';
             };
-        }, 40);
+        }, 30);
     }
 
     hideThumbnailPreview() {
@@ -746,7 +675,6 @@ class AppleTVPlayer {
             clearTimeout(this.previewTimer);
             this.previewTimer = null;
         }
-
         if (this.progressThumbnailPreview) {
             this.progressThumbnailPreview.style.display = 'none';
         }
@@ -754,31 +682,21 @@ class AppleTVPlayer {
 
     handleCursorVisibility() {
         if (!this.playerPage) return;
-
         clearTimeout(this.cursorHideTimeout);
         this.playerPage.classList.remove('hide-cursor');
-
-        if (this.videoControls) {
-            this.videoControls.classList.remove('hidden-controls');
-        }
+        if (this.videoControls) this.videoControls.classList.remove('hidden-controls');
 
         if (this.playerPage.classList.contains('active')) {
             this.cursorHideTimeout = setTimeout(() => {
                 this.playerPage.classList.add('hide-cursor');
-
-                if (this.videoControls) {
-                    this.videoControls.classList.add('hidden-controls');
-                }
+                if (this.videoControls) this.videoControls.classList.add('hidden-controls');
             }, 2000);
         }
     }
 
     cleanup() {
-        cancelAnimationFrame(this.frameRequest);
-
-        if (this.previewTimer) {
-            clearTimeout(this.previewTimer);
-        }
+        cancelAnimationFrame(this.animationFrame);
+        if (this.previewTimer) clearTimeout(this.previewTimer);
 
         this.videos.forEach(video => {
             if (video && video.url && video.url.startsWith('blob:')) {
